@@ -3,98 +3,4049 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portofolio Saya</title>
+    <title>PARADOX - Dashboard</title>
     <style>
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
-            min-height: 100vh;
+            background-color: #0a0a0a;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            padding: 20px;
+            justify-content: center;
         }
 
-        .card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 16px;
-            max-width: 480px;
+        .hidden { display: none !important; }
+
+        .view {
             width: 100%;
-            padding: 32px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s;
+            overflow-y: auto;
         }
 
-        .profile-img {
-            width: 80px;
-            height: 80px;
+        .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            vertical-align: middle;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .icon-lg { width: 28px; height: 28px; }
+        .icon-fill { fill: currentColor; stroke: none; }
+
+        #authView { background: #0a0a0a; z-index: 10; }
+        .auth-box {
+            background: #151515; padding: 40px; border-radius: 12px;
+            border: 1px solid #333; width: 90%; max-width: 400px; text-align: center;
+        }
+        .auth-box h1 { margin-bottom: 20px; color: #ff3333; letter-spacing: 2px; }
+        .auth-box input {
+            width: 100%; padding: 15px; margin-bottom: 20px;
+            background: #222; border: 1px solid #444; color: #fff;
+            border-radius: 8px; outline: none;
+        }
+        .auth-box button {
+            width: 100%; padding: 15px; background: #ff3333; color: #fff;
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .auth-box button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .error-msg { color: #ff3333; margin-bottom: 15px; font-size: 14px; }
+
+        .remember-row {
+            display: flex; align-items: center; justify-content: flex-start;
+            gap: 10px; margin-top: 16px; cursor: pointer; user-select: none;
+        }
+        .remember-row input[type="checkbox"] { display: none; }
+        .custom-checkbox {
+            width: 20px; height: 20px; border-radius: 5px; border: 2px solid #555;
+            background: #1a1a1a; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease; flex-shrink: 0;
+        }
+        .custom-checkbox svg {
+            width: 14px; height: 14px; color: #fff; opacity: 0;
+            transform: scale(0.5); transition: all 0.2s ease;
+        }
+        .remember-row input[type="checkbox"]:checked + .custom-checkbox {
+            background: #ff3333; border-color: #ff3333;
+        }
+        .remember-row input[type="checkbox"]:checked + .custom-checkbox svg {
+            opacity: 1; transform: scale(1);
+        }
+        .remember-label { font-size: 13px; color: #ccc; font-weight: 500; }
+
+        #loadingView { background: #000; z-index: 20; }
+        .loader-container { width: 80%; max-width: 500px; text-align: center; }
+        .loader-text { font-size: 24px; font-weight: bold; margin-bottom: 20px; letter-spacing: 4px; }
+        .progress-bar {
+            width: 100%; height: 4px; background: #222; border-radius: 2px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; width: 0%; background: #fff;
+            transition: width 0.1s linear; box-shadow: 0 0 10px #fff;
+        }
+        .percent-text { margin-top: 10px; font-size: 14px; color: #888; }
+
+        #dashboardView {
+            background: #0a0a0a; z-index: 5; padding: 20px;
+            overflow-y: auto; justify-content: flex-start; padding-top: 50px;
+        }
+
+        .tools-topbar {
+            width: 100%; max-width: 600px; display: flex;
+            justify-content: space-between; align-items: center;
+            gap: 10px; margin-bottom: 30px;
+        }
+        .btn-music, .btn-socials {
+            flex: 1; padding: 10px 14px; background: #151515; color: #fff;
+            border: 1px solid #333; border-radius: 8px; font-weight: 600;
+            cursor: pointer; font-size: 14px; display: flex; align-items: center;
+            justify-content: center; gap: 8px; transition: 0.2s;
+        }
+        .btn-music:hover, .btn-socials:hover { background: #222; border-color: #555; }
+        .btn-music .icon { color: #00ff88; }
+        .btn-socials .icon { color: #ff3333; }
+
+        #reportBannedView {
+            background: #0a0a0a; z-index: 6; padding: 20px;
+            overflow-y: auto; justify-content: flex-start; padding-top: 25px;
+        }
+
+        .platform-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            width: 100%; max-width: 600px; margin-bottom: 20px;
+        }
+
+        .platform-card {
+            background: #151515; border: 1px solid #333; border-radius: 12px;
+            padding: 20px; display: flex; align-items: center; gap: 12px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .platform-card:hover { border-color: #ff3333; background: #1a1a1a; }
+        .platform-card svg { width: 32px; height: 32px; }
+        .platform-card.telegram svg { color: #229ed9; }
+        .platform-card.whatsapp svg { color: #25d366; }
+        .platform-card span { font-weight: 700; font-size: 15px; }
+
+        .report-form {
+            width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 15px;
+        }
+        .report-form h3 {
+            font-size: 14px; color: #888; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 5px; margin-top: 10px;
+        }
+
+        .session-tabs {
+            display: flex; gap: 10px; width: 100%; max-width: 600px; margin-bottom: 15px;
+        }
+        .session-tab {
+            flex: 1; padding: 12px; background: #151515; border: 1px solid #333;
+            border-radius: 8px; color: #888; font-weight: 600; cursor: pointer; text-align: center;
+        }
+        .session-tab.active { background: rgba(255, 51, 51, 0.1); border-color: #ff3333; color: #ff3333; }
+
+        .account-list {
+            background: #151515; border: 1px solid #333; border-radius: 8px;
+            max-height: 200px; overflow-y: auto; display: flex; flex-direction: column;
+        }
+        .account-item {
+            padding: 12px 15px; border-bottom: 1px solid #222;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .account-item:last-child { border-bottom: none; }
+        .account-item .acc-info { display: flex; flex-direction: column; gap: 4px; }
+        .account-item .acc-phone { font-weight: 600; font-size: 14px; }
+        .account-item .acc-status { font-size: 11px; display: flex; align-items: center; gap: 5px; }
+        .account-item .acc-status.on { color: #00ff88; }
+        .account-item .acc-status.off { color: #ff3333; }
+        .account-item .acc-remove { background: none; border: none; color: #ff3333; cursor: pointer; font-size: 12px; font-weight: bold; }
+
+        .slider-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .slider-group label { display: flex; justify-content: space-between; font-size: 13px; color: #ccc; font-weight: 600;}
+        .slider-group input[type="range"] { width: 100%; cursor: pointer; accent-color: #ff3333; }
+        .warning-text { font-size: 11px; color: #ff5555; margin-top: -5px; }
+
+        .terminal-box {
+            background: #000; border: 1px solid #333; border-radius: 8px;
+            padding: 15px; height: 250px; overflow-y: auto;
+            font-family: 'Courier New', monospace; font-size: 12px;
+            color: #ccc; display: flex; flex-direction: column; gap: 5px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+        .terminal-line { display: flex; gap: 8px; }
+        .terminal-line .time { color: #666; }
+        .terminal-line .msg { color: #fff; }
+        .terminal-line.ok .msg { color: #00ff88; }
+        .terminal-line.err .msg { color: #ff3333; }
+        .terminal-line.sys .msg { color: #ffaa00; }
+
+        #webToApkView {
+            background: #0a0a0a; z-index: 6; padding: 20px;
+            overflow-y: auto; justify-content: flex-start; padding-top: 25px;
+        }
+
+        .banner-upload-box {
+            width: 100%; background: #151515; border: 2px dashed #333;
+            border-radius: 10px; padding: 24px; text-align: center;
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+        .banner-upload-box:hover { border-color: #ff3333; background: #1a1a1a; }
+        .banner-upload-box.has-file { border-style: solid; border-color: #00ff88; padding: 12px; }
+        .banner-upload-box .banner-preview {
+            width: 100%; max-height: 180px; object-fit: contain;
+            border-radius: 8px; display: block; margin: 0 auto;
+        }
+        .banner-upload-box .banner-placeholder {
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            color: #888; font-size: 13px;
+        }
+        .banner-upload-box .banner-placeholder svg { color: #ff3333; width: 32px; height: 32px; }
+        .banner-upload-box .banner-clear {
+            position: absolute; top: 6px; right: 6px;
+            background: #ff3333; color: #fff; border: none;
+            width: 26px; height: 26px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: center; font-weight: bold;
+        }
+
+        .apk-loading-box {
+            width: 100%; padding: 24px; background: #151515;
+            border: 1px solid #333; border-radius: 10px;
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
+            margin-top: 15px;
+        }
+        .apk-spinner {
+            width: 50px; height: 50px; border: 4px solid #222;
+            border-top-color: #ff3333; border-right-color: #00ff88;
+            border-radius: 50%; animation: subdoSpin 0.9s linear infinite;
+        }
+        .apk-loading-text { color: #ccc; font-size: 13px; letter-spacing: 1px; text-align: center; }
+
+        .apk-history-wrap { width: 100%; max-width: 600px; margin-top: 25px; }
+        .apk-history-wrap h3 {
+            font-size: 13px; color: #888; letter-spacing: 1px;
+            text-transform: uppercase; margin-bottom: 12px;
+            padding-left: 4px; display: flex; align-items: center; gap: 8px;
+        }
+        .apk-history-list { display: flex; flex-direction: column; gap: 10px; }
+        .apk-history-item {
+            background: #151515; border: 1px solid #333; border-radius: 10px;
+            padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+            transition: 0.2s;
+        }
+        .apk-history-item:hover { border-color: #555; }
+        .apk-history-item .apk-thumb {
+            width: 44px; height: 44px; border-radius: 8px; object-fit: cover;
+            background: #222; flex-shrink: 0;
+        }
+        .apk-history-item .apk-meta { flex: 1; min-width: 0; }
+        .apk-history-item .apk-name {
+            font-weight: 700; font-size: 14px; color: #fff;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .apk-history-item .apk-url {
+            font-size: 11px; color: #888; margin-top: 2px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-family: 'Courier New', monospace;
+        }
+        .apk-history-item .apk-date { font-size: 10px; color: #555; margin-top: 3px; }
+        .apk-download-btn {
+            padding: 9px 16px; background: #00c853; color: #fff;
+            border: none; border-radius: 8px; font-weight: 700;
+            cursor: pointer; font-size: 12px; text-decoration: none;
+            display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+            transition: 0.2s;
+        }
+        .apk-download-btn:hover { background: #00a844; }
+        .apk-history-empty {
+            text-align: center; padding: 30px 20px; color: #666;
+            background: #151515; border: 1px dashed #333;
+            border-radius: 10px; font-size: 13px;
+        }
+
+        #socialsView {
+            background: #0a0a0a; z-index: 35; padding: 20px;
+            overflow-y: auto; justify-content: flex-start; padding-top: 25px;
+        }
+        .social-topbar {
+            width: 100%; max-width: 600px; display: flex;
+            justify-content: flex-start; margin-bottom: 20px;
+        }
+        .social-header {
+            width: 100%; max-width: 600px; text-align: center; margin-bottom: 28px;
+        }
+        .social-header .official-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border-radius: 20px;
+            background: rgba(255, 51, 51, 0.08); border: 1px solid rgba(255, 51, 51, 0.35);
+            color: #ff5555; font-size: 11px; font-weight: 700;
+            letter-spacing: 1px; margin-bottom: 12px;
+        }
+        .social-header h1 { font-size: 32px; letter-spacing: 3px; color: #fff; }
+        .social-header p { color: #888; font-size: 13px; margin-top: 7px; }
+        .social-list {
+            width: 100%; max-width: 600px; display: flex;
+            flex-direction: column; gap: 10px;
+        }
+        .social-card {
+            width: 100%; display: flex; align-items: center; gap: 14px;
+            padding: 15px 16px; background: #151515; border: 1px solid #333;
+            border-radius: 11px; cursor: pointer; text-align: left;
+            transition: all 0.25s ease;
+        }
+        .social-card:hover { transform: translateY(-2px); background: #1b1b1b; }
+        .social-card.youtube:hover { border-color: #ff0000; box-shadow: 0 5px 18px rgba(255, 0, 0, 0.12); }
+        .social-card.telegram:hover { border-color: #229ed9; box-shadow: 0 5px 18px rgba(34, 158, 217, 0.12); }
+        .social-card.instagram:hover { border-color: #e1306c; box-shadow: 0 5px 18px rgba(225, 48, 108, 0.12); }
+        .social-card.tiktok:hover { border-color: #fff; box-shadow: 0 5px 18px rgba(255, 255, 255, 0.08); }
+        .social-logo {
+            width: 43px; height: 43px; min-width: 43px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; background: #222;
+        }
+        .social-logo svg { width: 24px; height: 24px; }
+        .youtube .social-logo { color: #ff0000; }
+        .telegram .social-logo { color: #229ed9; }
+        .instagram .social-logo { color: #e1306c; }
+        .tiktok .social-logo { color: #fff; }
+        .social-info { flex: 1; min-width: 0; }
+        .social-platform {
+            font-size: 11px; color: #777; margin-bottom: 3px;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
+        }
+        .social-name {
+            color: #fff; font-size: 15px; font-weight: 700;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .social-handle {
+            color: #888; font-size: 12px; margin-top: 2px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .social-arrow { color: #555; flex-shrink: 0; }
+        .social-card:hover .social-arrow { color: #fff; }
+
+        #socialLoading {
+            position: fixed; inset: 0; z-index: 99999;
+            background: rgba(0, 0, 0, 0.96); display: flex;
+            align-items: center; justify-content: center;
+            text-align: center; padding: 20px;
+        }
+        .social-loading-box { width: 100%; max-width: 330px; }
+        .official-spinner {
+            width: 54px; height: 54px; border-radius: 50%;
+            border: 4px solid #252525; border-top-color: #ff3333;
+            border-right-color: #fff; animation: socialSpin 0.8s linear infinite;
+            margin: 0 auto 22px;
+        }
+        @keyframes socialSpin { to { transform: rotate(360deg); } }
+        .social-loading-title {
+            font-size: 18px; font-weight: 800;
+            letter-spacing: 2px; color: #fff;
+        }
+        .social-loading-text { margin-top: 8px; color: #888; font-size: 13px; }
+        .social-loading-platform {
+            margin-top: 16px; color: #ff5555;
+            font-size: 12px; font-weight: 700;
+        }
+
+        .dashboard-header {
+            text-align: center; margin-bottom: 40px;
+            width: 100%; max-width: 600px;
+        }
+        .dashboard-header h1 {
+            font-size: 48px; letter-spacing: 8px; font-weight: 800;
+            background: linear-gradient(100deg, #ffffff 0%, #bdbdbd 25%, #ffffff 50%, #9e9e9e 75%, #ffffff 100%);
+            background-size: 200% auto; -webkit-background-clip: text;
+            background-clip: text; -webkit-text-fill-color: transparent;
+            color: transparent; animation: shimmer 3s linear infinite;
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.15));
+        }
+        @keyframes shimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+        .dashboard-header p { color: #888; margin-top: 10px; }
+
+        .menu-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            width: 100%; max-width: 600px;
+        }
+        .menu-card {
+            background: #151515; border: 1px solid #333; border-radius: 12px;
+            padding: 25px 20px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+            cursor: pointer; transition: all 0.3s ease; gap: 12px;
+        }
+        .menu-card:hover {
+            border-color: #ff3333; transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 51, 51, 0.1);
+        }
+.menu-card .menu-icon {
+    width: 60px; 
+    height: 60px; 
+    color: #ff3333; 
+    transition: 0.3s;
+}
+
+.menu-card:hover .menu-icon { 
+    color: #ffffff; 
+}
+        .menu-card:hover .menu-icon { color: #ff3333; transform: scale(1.1); }
+        .menu-card .menu-title { font-weight: 700; font-size: 15px; color: #fff; }
+        .menu-card .menu-desc { font-size: 12px; color: #888; line-height: 1.4; }
+
+        #installerView, #otpView, #bugWhatsappView, #delayBugView,
+        #clearBugView, #senderManageView, #subdomainView, #toolsView,
+        #skipLinkView, #premiumFreeView, #alightView, #comingSoonView {
+            background: #0a0a0a; z-index: 6; padding: 20px;
+            overflow-y: auto; justify-content: flex-start; padding-top: 25px;
+        }
+
+        .panel-topbar {
+            width: 100%; max-width: 600px; display: flex;
+            justify-content: flex-start; margin-bottom: 20px;
+        }
+        .btn-back {
+            padding: 10px 18px; background: #151515; color: #fff;
+            border: 1px solid #333; border-radius: 8px; font-weight: 600;
+            cursor: pointer; font-size: 14px; transition: 0.2s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .btn-back:hover { background: #222; }
+
+        .panel-header {
+            text-align: center; margin-bottom: 30px;
+            width: 100%; max-width: 600px;
+        }
+        .panel-header h2 {
+            font-size: 28px; color: #fff; letter-spacing: 2px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .panel-header p { color: #888; margin-top: 5px; font-size: 14px; }
+
+        .input-group {
+            width: 100%; max-width: 600px;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        .phone-inputs {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+        }
+        .form-input {
+            width: 100%; padding: 15px; background: #151515;
+            border: 1px solid #333; color: #fff; border-radius: 8px;
+            outline: none; transition: border-color 0.2s;
+        }
+        .form-input:focus { border-color: #ff3333; }
+
+        .btn-primary {
+            padding: 18px; background: #ff3333; color: #fff;
+            border: none; border-radius: 8px; font-weight: bold;
+            font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; transition: 0.2s;
+        }
+        .btn-primary:hover { background: #e62e2e; }
+        .btn-primary:disabled { opacity: 0.6; cursor: wait; }
+
+        .sliding-toggle-container {
+            width: 100%; max-width: 600px; background: #151515;
+            border: 1px solid #333; border-radius: 12px;
+            padding: 6px; margin-bottom: 20px; display: flex;
+            position: relative; height: 60px; overflow: hidden;
+        }
+        .slider-bg {
+            position: absolute; top: 6px; bottom: 6px;
+            width: calc(50% - 6px); background: #ff3333;
+            border-radius: 8px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1; box-shadow: 0 0 10px rgba(255, 51, 51, 0.4);
+        }
+        .sliding-toggle-container.right-active .slider-bg { transform: translateX(100%); }
+        .toggle-btn {
+            flex: 1; position: relative; z-index: 2;
+            background: transparent; border: none; color: #888;
+            font-weight: bold; font-size: 13px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            gap: 6px; transition: color 0.3s ease, transform 0.3s ease;
+            padding: 0 10px; white-space: nowrap;
+        }
+        .toggle-btn.active { color: #fff; transform: scale(1.05); }
+        .toggle-btn:not(.active) { transform: scale(0.95); color: #555; }
+
+        .log-box {
+            background: #000; border: 1px solid #333; border-radius: 8px;
+            padding: 15px; height: 250px; overflow-y: auto;
+            font-family: 'Courier New', monospace; font-size: 12px;
+            color: #ccc; display: none; width: 100%; max-width: 600px;
+            margin-top: 15px;
+        }
+        .log-success { color: #00ff88; }
+        .log-error { color: #ff3333; }
+        .log-info { color: #ffaa00; }
+
+        .results-area {
+            width: 100%; max-width: 600px; margin-top: 20px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .result-card {
+            background: #151515; border: 1px solid #333;
+            padding: 15px; border-radius: 8px;
+            display: flex; justify-content: space-between;
+            align-items: center; gap: 10px;
+        }
+        .result-card .status {
+            display: flex; align-items: center; gap: 6px; font-size: 14px;
+        }
+
+        .stats-box {
+            width: 100%; max-width: 600px; margin-top: 25px;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+        }
+        .stat-item {
+            background: #151515; border: 1px solid #333;
+            padding: 15px; border-radius: 8px; text-align: center;
+        }
+        .stat-item .stat-label {
+            font-size: 11px; text-transform: uppercase;
+            letter-spacing: 1px; color: #888; margin-bottom: 6px;
+        }
+        .stat-item .stat-value { font-size: 22px; font-weight: 700; }
+        .stat-success .stat-value { color: #00ff88; }
+        .stat-ratelimit .stat-value { color: #ffaa00; }
+        .stat-bad .stat-value { color: #ff5555; }
+        .stat-error .stat-value { color: #ff3333; }
+
+        #blockedView {
+            background: #ff0000; z-index: 9999;
+            text-align: center; padding: 20px;
+        }
+        #blockedView h1 { font-size: 3rem; margin-bottom: 20px; }
+        #blockedView p { font-size: 1.2rem; }
+
+        #musicView {
+            background: #0a0a0a; z-index: 30; padding: 20px;
+            overflow-y: auto; justify-content: flex-start; padding-top: 25px;
+        }
+        .music-topbar {
+            width: 100%; max-width: 600px; display: flex;
+            justify-content: flex-start; margin-bottom: 20px;
+        }
+        .music-header { text-align: center; margin-bottom: 30px; }
+        .music-header h1 {
+            font-size: 36px; letter-spacing: 4px; color: #fff;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+        }
+        .music-header p { color: #888; margin-top: 5px; font-size: 14px; }
+        .song-list {
+            width: 100%; max-width: 600px; display: flex;
+            flex-direction: column; gap: 10px;
+        }
+        .song-item {
+            background: #151515; border: 1px solid #333;
+            padding: 14px 18px; border-radius: 10px;
+            display: flex; align-items: center; gap: 15px;
+            transition: 0.2s; cursor: pointer;
+        }
+        .song-item:hover { border-color: #555; }
+        .song-item.playing { border-color: #00ff88; background: #0f1a12; }
+        .song-info { flex: 1; min-width: 0; }
+        .song-title {
+            font-weight: 600; font-size: 15px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .song-artist { font-size: 12px; color: #888; margin-top: 2px; }
+        .play-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: #222; border: 1px solid #444; color: #fff;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: center; transition: 0.2s; flex-shrink: 0;
+        }
+        .play-btn:hover { background: #333; }
+        .song-item.playing .play-btn {
+            background: #00ff88; color: #000; border-color: #00ff88;
+        }
+        .now-playing {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #0f0f0f; border-top: 1px solid #333;
+            padding: 12px 20px; display: flex; align-items: center;
+            gap: 15px; z-index: 50;
+        }
+        .now-playing.hidden { display: none; }
+        .now-info { flex: 1; min-width: 0; }
+        .now-title {
+            font-weight: 600; font-size: 14px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .now-artist { font-size: 11px; color: #888; }
+        .now-controls { display: flex; gap: 8px; }
+        .now-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: #222; border: 1px solid #444; color: #fff;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: center;
+        }
+        .now-btn:hover { background: #333; }
+
+        .yt-sub-box {
+            margin-bottom: 18px; padding: 14px 16px; border-radius: 10px;
+            border: 1.5px solid; display: flex; flex-direction: column;
+            gap: 10px; font-size: 13px; text-align: left; transition: 0.3s;
+        }
+        .yt-sub-box.not-subbed { border-color: #ff3333; background: rgba(255, 51, 51, 0.08); }
+        .yt-sub-box.subbed { border-color: #00c853; background: rgba(0, 200, 83, 0.08); }
+        .yt-sub-row { display: flex; align-items: center; gap: 10px; }
+        .yt-logo { width: 26px; height: 20px; flex-shrink: 0; }
+        .yt-sub-text { flex: 1; font-weight: 600; line-height: 1.35; }
+        .yt-sub-box.not-subbed .yt-sub-text { color: #ff5555; }
+        .yt-sub-box.subbed .yt-sub-text { color: #00e676; }
+        .yt-refresh-btn {
+            width: 100%; padding: 10px 14px; border-radius: 8px;
+            border: none; font-weight: 700; font-size: 13px;
+            cursor: pointer; transition: 0.2s; letter-spacing: 0.5px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .yt-refresh-btn:hover { filter: brightness(1.15); }
+        .yt-sub-box.not-subbed .yt-refresh-btn { background: #ff3333; color: #fff; }
+        .yt-sub-box.subbed .yt-refresh-btn { display: none; }
+
+        .sender-list {
+            width: 100%; max-width: 600px; margin-top: 20px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .sender-list h3 {
+            font-size: 13px; color: #888; letter-spacing: 1px;
+            text-transform: uppercase; margin-bottom: 5px; padding-left: 4px;
+        }
+        .sender-item {
+            background: #151515; border: 1px solid #333;
+            padding: 14px 16px; border-radius: 10px;
+            display: flex; justify-content: space-between;
+            align-items: center; gap: 10px;
+        }
+        .sender-item .info { text-align: left; flex: 1; min-width: 0; }
+        .sender-item .phone {
+            font-weight: bold; font-size: 15px;
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+        }
+        .sender-item .phone .badge-owner {
+            background: #ffaa00; color: #000; padding: 2px 8px;
+            border-radius: 10px; font-size: 10px; font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        .sender-item .meta {
+            font-size: 12px; color: #888; margin-top: 4px;
+            display: flex; gap: 12px; flex-wrap: wrap;
+        }
+        .sender-item .meta .status-dot {
+            display: inline-block; width: 8px; height: 8px;
+            border-radius: 50%; margin-right: 5px; vertical-align: middle;
+        }
+        .sender-item .meta .status-dot.on { background: #00ff88; box-shadow: 0 0 6px #00ff88; }
+        .sender-item .meta .status-dot.off { background: #ff3333; }
+        .sender-item .actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .sender-item .actions button {
+            background: #ff3333; color: #fff; border: none;
+            padding: 6px 12px; border-radius: 6px; cursor: pointer;
+            font-size: 12px; font-weight: 600;
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 1000;
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-box {
+            background: #151515; border: 1px solid #333; border-radius: 12px;
+            padding: 28px; width: 100%; max-width: 420px; text-align: center;
+        }
+        .modal-box h3 { color: #fff; margin-bottom: 8px; font-size: 18px; }
+        .modal-box p { color: #888; font-size: 12px; margin-bottom: 16px; }
+        .modal-box input {
+            width: 100%; padding: 12px; margin-bottom: 12px;
+            background: #222; border: 1px solid #444; color: #fff;
+            border-radius: 8px; outline: none;
+        }
+        .modal-box button {
+            width: 100%; padding: 12px; background: #ff3333; color: #fff;
+            border: none; border-radius: 8px; font-weight: bold;
+            cursor: pointer; margin-bottom: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .modal-box button.cancel { background: #333; }
+        .modal-box button:disabled { opacity: 0.5; cursor: wait; }
+
+        .sender-btn-select {
+            width: 100%; padding: 12px; margin-bottom: 8px;
+            background: #222; color: #fff; border: 1px solid #444;
+            border-radius: 8px; cursor: pointer; text-align: left;
+            display: flex; justify-content: space-between;
+            align-items: center; transition: 0.2s;
+        }
+        .sender-btn-select:hover { border-color: #ff3333; background: #2a2a2a; }
+        .sender-btn-select .badge {
+            background: #ff3333; color: #fff; padding: 2px 10px;
+            border-radius: 12px; font-size: 11px; font-weight: bold;
+        }
+        .sender-btn-select .phone-wrap {
+            display: flex; flex-direction: column; gap: 2px; text-align: left;
+        }
+        .sender-btn-select .phone-wrap .phone-line {
+            font-weight: 600; font-size: 14px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .sender-btn-select .phone-wrap .phone-model { font-size: 11px; color: #888; }
+
+        .qr-wrap { margin-top: 18px; display: none; width: 100%; max-width: 600px; }
+        .qr-wrap img {
+            width: 200px; height: 200px; background: #fff;
+            margin: 10px auto; display: block; border-radius: 10px; padding: 10px;
+        }
+        .qr-wrap .pair-code {
+            color: #ff3333; letter-spacing: 4px; font-size: 26px;
+            font-weight: bold; margin: 8px 0;
+            font-family: 'Courier New', monospace; text-align: center;
+        }
+        .qr-wrap .note { color: #ff5555; font-size: 11px; margin-top: 6px; text-align: center; }
+
+        #toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #ff3333; color: #fff; padding: 14px 22px;
+            border-radius: 10px; font-weight: 600; z-index: 9999;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+            display: flex; align-items: center; gap: 10px;
+            opacity: 0; transition: opacity 0.3s ease;
+            pointer-events: auto; cursor: pointer; max-width: 90%; font-size: 14px;
+        }
+        #toast.show { opacity: 1; }
+        #toast svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+        .pair-mode-tabs {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%;
+        }
+        .pair-mode-btn {
+            padding: 12px; background: #151515; color: #888;
+            border: 1px solid #333; border-radius: 8px;
+            font-weight: 600; font-size: 13px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            gap: 6px; transition: 0.2s;
+        }
+        .pair-mode-btn:hover { background: #222; }
+        .pair-mode-btn.active { background: #ff3333; color: #fff; border-color: #ff3333; }
+
+        @media (max-width: 480px) {
+            .dashboard-header h1 { font-size: 40px; letter-spacing: 6px; }
+            .tools-topbar { gap: 8px; }
+            .btn-music, .btn-socials { font-size: 12px; padding: 10px 8px; }
+            .phone-inputs { gap: 10px; }
+            .social-header h1 { font-size: 28px; }
+            .social-card { padding: 13px; }
+            .social-logo { width: 40px; height: 40px; min-width: 40px; }
+        }
+
+        .subdo-domain-picker {
+            background: #151515; border: 1px solid #333;
+            border-radius: 8px; overflow: hidden;
+        }
+        .subdo-picker-header {
+            padding: 15px 18px; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center;
+            font-weight: 600; font-size: 14px; user-select: none;
+            transition: background 0.2s;
+        }
+        .subdo-picker-header:hover { background: #1a1a1a; }
+        .subdo-picker-header .icon { transition: transform 0.3s ease; color: #888; }
+        .subdo-picker-header.open .icon { transform: rotate(180deg); color: #fff; }
+        .subdo-picker-list {
+            max-height: 320px; overflow-y: auto;
+            border-top: 1px solid #333; background: #0f0f0f;
+        }
+        .subdo-picker-list::-webkit-scrollbar { width: 6px; }
+        .subdo-picker-list::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        .subdo-domain-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 18px; cursor: pointer; border-bottom: 1px solid #1a1a1a;
+            transition: all 0.2s ease; border-left: 3px solid transparent;
+        }
+        .subdo-domain-item:last-child { border-bottom: none; }
+        .subdo-domain-item:hover { background: #1a1a1a; }
+        .subdo-domain-item.selected {
+            background: rgba(0, 255, 136, 0.08); border-left-color: #00ff88;
+        }
+        .subdo-domain-item.selected .domain-name { color: #00ff88; }
+        .subdo-domain-item.disabled { opacity: 0.45; cursor: not-allowed; }
+        .subdo-domain-item.disabled:hover { background: transparent; }
+        .subdo-domain-item .domain-name {
+            font-weight: 500; font-size: 14px; color: #ddd; transition: color 0.2s;
+        }
+        .subdo-status {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 11px; padding: 3px 10px; border-radius: 20px;
+            font-weight: 600; letter-spacing: 0.3px;
+        }
+        .subdo-status.alive { background: rgba(0, 255, 136, 0.1); color: #00ff88; }
+        .subdo-status.dead { background: rgba(255, 51, 51, 0.1); color: #ff5555; }
+        .subdo-status svg { width: 11px; height: 11px; }
+        .subdo-picker-loading {
+            padding: 30px 20px; text-align: center; color: #888;
+            font-size: 13px; display: flex; align-items: center;
+            justify-content: center; gap: 10px;
+        }
+        .subdo-picker-loading .mini-spin {
+            width: 16px; height: 16px; border: 2px solid #333;
+            border-top-color: #ff3333; border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        #subdoLoadingOverlay {
+            position: fixed; inset: 0; z-index: 99999;
+            background: rgba(0, 0, 0, 0.94); display: flex;
+            align-items: center; justify-content: center; backdrop-filter: blur(4px);
+        }
+        .subdo-loading-box { text-align: center; padding: 40px; }
+        .subdo-big-spinner {
+            width: 72px; height: 72px; border: 4px solid #1e1e1e;
+            border-top-color: #ff3333; border-right-color: #00ff88;
+            border-radius: 50%; animation: subdoSpin 0.9s linear infinite;
+            margin: 0 auto 24px; box-shadow: 0 0 30px rgba(255, 51, 51, 0.15);
+        }
+        @keyframes subdoSpin { to { transform: rotate(360deg); } }
+        .subdo-loading-text {
+            font-size: 22px; font-weight: 800; letter-spacing: 3px;
+            color: #fff; margin-bottom: 8px;
+        }
+        .subdo-loading-sub { color: #888; font-size: 13px; letter-spacing: 0.5px; }
+        .subdo-result-card {
+            background: #151515; border: 1px solid #00ff88;
+            border-radius: 10px; padding: 16px 18px; animation: subdoFadeIn 0.4s ease;
+        }
+        @keyframes subdoFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .subdo-result-title {
+            color: #00ff88; font-weight: 700; font-size: 14px;
+            margin-bottom: 12px; display: flex; align-items: center;
+            gap: 8px; letter-spacing: 0.5px;
+        }
+        .subdo-result-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px dashed #222;
+            font-size: 13px; gap: 12px;
+        }
+        .subdo-result-row:last-child { border-bottom: none; }
+        .subdo-result-row span:first-child { color: #888; flex-shrink: 0; }
+        .subdo-result-row span:last-child {
+            color: #fff; font-family: 'Courier New', monospace;
+            font-weight: 600; text-align: right; word-break: break-all;
+        }
+        .subdo-history-wrap { width: 100%; max-width: 600px; margin-top: 25px; }
+        .subdo-history-wrap h3 {
+            font-size: 13px; color: #888; letter-spacing: 1px;
+            text-transform: uppercase; margin-bottom: 12px;
+            padding-left: 4px; display: flex; align-items: center; gap: 8px;
+        }
+        .subdo-history-table-wrap {
+            background: #151515; border: 1px solid #333;
+            border-radius: 10px; overflow: hidden; overflow-x: auto;
+        }
+        .subdo-history-table {
+            width: 100%; border-collapse: collapse; font-size: 12px; min-width: 500px;
+        }
+        .subdo-history-table th, .subdo-history-table td {
+            padding: 12px 14px; text-align: left;
+            border-bottom: 1px solid #222; white-space: nowrap;
+        }
+        .subdo-history-table th {
+            color: #888; text-transform: uppercase; font-size: 10px;
+            letter-spacing: 1px; font-weight: 700; background: #0f0f0f;
+        }
+        .subdo-history-table tr:last-child td { border-bottom: none; }
+        .subdo-history-table td {
+            color: #ccc; font-family: 'Courier New', monospace;
+        }
+        .subdo-history-table td.panel-cell { color: #00ff88; }
+        .subdo-history-table td.node-cell { color: #ff8888; }
+        .subdo-history-table td.date-cell {
+            color: #666; font-family: 'Segoe UI', sans-serif; font-size: 11px;
+        }
+        .subdo-history-empty {
+            text-align: center; padding: 30px 20px; color: #666;
+            background: #151515; border: 1px dashed #333;
+            border-radius: 10px; font-size: 13px;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .tool-card {
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 22px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover {
+            border-color: #ff3333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 51, 51, 0.1);
+        }
+
+        .tool-card .tool-icon {
+            width: 42px;
+            height: 42px;
+            color: #fff;
+            transition: 0.3s;
+        }
+
+        .tool-card:hover .tool-icon {
+            color: #ff3333;
+            transform: scale(1.1);
+        }
+
+        .tool-card .tool-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .tool-card .tool-desc {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.4;
+        }
+
+        .skip-loading-box {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 24px;
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 10px;
+        }
+
+        .skip-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #222;
+            border-top-color: #ff3333;
+            border-right-color: #00ff88;
             border-radius: 50%;
-            background-color: #38bdf8;
-            margin-bottom: 20px;
+            animation: subdoSpin 0.9s linear infinite;
+        }
+
+        .skip-loading-text {
+            color: #ccc;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        .skip-result-card {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+            background: #151515;
+            border: 1px solid #00ff88;
+            border-radius: 10px;
+            padding: 16px 18px;
+            animation: subdoFadeIn 0.4s ease;
+        }
+
+        .skip-result-title {
+            color: #00ff88;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .skip-result-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #222;
+            font-size: 13px;
+        }
+
+        .skip-result-row:last-child {
+            border-bottom: none;
+        }
+
+        .skip-result-row .label {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .skip-result-row .value {
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .skip-result-row .value.link {
+            color: #8be9fd;
+        }
+
+        .skip-history-wrap {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 25px;
+        }
+
+        .skip-history-wrap h3 {
+            font-size: 13px;
+            color: #888;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            padding-left: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skip-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .skip-history-item {
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .skip-history-item:hover {
+            border-color: #555;
+        }
+
+        .skip-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            color: #666;
+            letter-spacing: 0.5px;
+        }
+
+        .skip-history-header .status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .skip-history-header .status.ok {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+        }
+
+        .skip-history-header .status.fail {
+            background: rgba(255, 51, 51, 0.1);
+            color: #ff5555;
+        }
+
+        .skip-history-body {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .skip-history-body .row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .skip-history-body .row .k {
+            color: #888;
+            min-width: 55px;
+            flex-shrink: 0;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 11px;
+        }
+
+        .skip-history-body .row .v {
+            color: #ccc;
+            flex: 1;
+        }
+
+        .skip-history-body .row .v.ok {
+            color: #00ff88;
+        }
+
+        .skip-history-empty {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666;
+            background: #151515;
+            border: 1px dashed #333;
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+        .pg-grid {
+            width: 100%;
+            max-width: 600px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .pg-card {
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pg-card:hover {
+            border-color: #ff3333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 18px rgba(255, 51, 51, 0.15);
+        }
+
+        .pg-card.pg-coming {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .pg-card.pg-coming:hover {
+            border-color: #555;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .pg-card .pg-icon {
+            width: 50px;
+            height: 50px;
+            color: #fff;
+            transition: 0.3s;
+        }
+
+        .pg-card:hover .pg-icon {
+            color: #ff3333;
+            transform: scale(1.1);
+        }
+
+        .pg-card.pg-coming:hover .pg-icon {
+            color: #fff;
+            transform: none;
+        }
+
+        .pg-card .pg-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .pg-card .pg-desc {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.4;
+        }
+
+        .pg-badge-soon {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 170, 0, 0.15);
+            color: #ffaa00;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 170, 0, 0.3);
+        }
+
+        .am-flow {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .am-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 6px;
+        }
+
+        .am-tab {
+            padding: 12px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: #888;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            font-weight: bold;
-            color: #0f172a;
+            gap: 6px;
         }
 
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
-            color: #f8fafc;
+        .am-tab.active {
+            background: #ff3333;
+            color: #fff;
         }
 
-        p {
-            color: #94a3b8;
-            line-height: 1.6;
-            margin-bottom: 24px;
-            font-size: 0.95rem;
-        }
-
-        .links {
+        .am-panel {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
 
-        .link-btn {
-            display: block;
-            text-align: center;
-            padding: 12px 16px;
-            background-color: #334155;
-            color: #f8fafc;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
+        .am-result-card {
+            background: #151515;
+            border: 1px solid #00ff88;
+            border-radius: 10px;
+            padding: 16px 18px;
+            animation: subdoFadeIn 0.4s ease;
         }
 
-        .link-btn:hover {
-            background-color: #38bdf8;
-            color: #0f172a;
+        .am-result-card.fail {
+            border-color: #ff3333;
+        }
+
+        .am-result-title {
+            color: #00ff88;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .am-result-card.fail .am-result-title {
+            color: #ff3333;
+        }
+
+        .am-result-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #222;
+            font-size: 13px;
+        }
+
+        .am-result-row:last-child {
+            border-bottom: none;
+        }
+
+        .am-result-row .k {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .am-result-row .v {
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .am-result-row .v.link {
+            color: #8be9fd;
+        }
+
+        .am-loading-box {
+            width: 100%;
+            padding: 24px;
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .am-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #222;
+            border-top-color: #ff3333;
+            border-right-color: #00ff88;
+            border-radius: 50%;
+            animation: subdoSpin 0.9s linear infinite;
+        }
+
+        .am-loading-text {
+            color: #ccc;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        .cs-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 20px;
+            background: #151515;
+            border: 1px solid #333;
+            border-radius: 12px;
+            gap: 16px;
+        }
+
+        .cs-icon {
+            width: 80px;
+            height: 80px;
+            color: #ffaa00;
+            opacity: 0.6;
+        }
+
+        .cs-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 2px;
+        }
+
+        .cs-desc {
+            font-size: 14px;
+            color: #888;
+            line-height: 1.6;
+            max-width: 400px;
         }
     </style>
 </head>
+
 <body>
 
-    <div class="card">
-        <div class="profile-img">FA</div>
-        <h1>Fulan Ahmad</h1>
-        <p>Pengembang web dan pembuat konten digital. Suka bereksperimen dengan desain minimalis dan antarmuka yang ramah pengguna.</p>
-        
-        <div class="links">
-            <a href="#" class="link-btn">Proyek Terbaru</a>
-            <a href="#" class="link-btn">Kontak Saya</a>
+    <svg style="display:none;">
+        <symbol id="i-music" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V5l12-2v13"/>
+            <circle cx="6" cy="18" r="3"/>
+            <circle cx="18" cy="16" r="3"/>
+        </symbol>
+        <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 4l14 8-14 8z"/>
+        </symbol>
+        <symbol id="i-pause" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="6" y="4" width="4" height="16" rx="1"/>
+            <rect x="14" y="4" width="4" height="16" rx="1"/>
+        </symbol>
+        <symbol id="i-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5"/>
+            <path d="M12 19l-7-7 7-7"/>
+        </symbol>
+        <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+        </symbol>
+        <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6L6 18M6 6l12 12"/>
+        </symbol>
+        <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13"/>
+            <path d="M22 2l-7 20-4-9-9-4z"/>
+        </symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </symbol>
+        <symbol id="i-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            <line x1="10" y1="11" x2="10" y2="17"/>
+            <line x1="14" y1="11" x2="14" y2="17"/>
+        </symbol>
+        <symbol id="i-youtube" viewBox="0 0 24 24">
+            <path fill="#FF0000" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8z"/>
+            <path fill="#FFFFFF" d="M9.6 15.6V8.4l6.2 3.6z"/>
+        </symbol>
+        <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 4v6h-6"/>
+            <path d="M1 20v-6h6"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+            <path d="M20.49 15A9 9 0 0 1 5.64 18.36L1 14"/>
+        </symbol>
+        <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+            <line x1="12" y1="18" x2="12.01" y2="18"/>
+        </symbol>
+        <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+            <line x1="6" y1="6" x2="6.01" y2="6"/>
+            <line x1="6" y1="18" x2="6.01" y2="18"/>
+        </symbol>
+        <symbol id="i-virus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 2v3"/>
+            <path d="M12 19v3"/>
+            <path d="M2 12h3"/>
+            <path d="M19 12h3"/>
+            <path d="M5 5l2 2"/>
+            <path d="M17 17l2 2"/>
+            <path d="M19 5l-2 2"/>
+            <path d="M7 17l-2 2"/>
+        </symbol>
+        <symbol id="i-telegram" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21.7 3.4 18.4 20c-.25 1.17-.9 1.46-1.82.91l-5-3.68-2.41 2.32c-.27.27-.5.5-1.02.5l.36-5.1 9.28-8.38c.4-.36-.09-.56-.62-.2L5.7 13.6.75 12.05c-1.08-.34-1.1-1.08.23-1.6L20.3 3.03c.88-.32 1.65.2 1.4.37z"/>
+        </symbol>
+        <symbol id="i-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+            <rect x="3" y="3" width="18" height="18" rx="5"/>
+            <circle cx="12" cy="12" r="4"/>
+            <circle cx="17.5" cy="6.5" r="1"/>
+        </symbol>
+        <symbol id="i-tiktok" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16.5 3c.3 2.1 1.5 3.8 3.5 4.8v3.1c-1.7-.1-3.2-.7-4.5-1.7v7.1c0 3.8-2.8 6.2-6.3 6.2C5.9 22.5 3 20 3 16.6c0-3.3 2.6-5.9 6.2-6.2v3.2c-1.5.2-2.6 1.3-2.6 2.8 0 1.6 1.2 2.8 2.8 2.8 1.8 0 2.9-1.1 2.9-3.3V3h4.2z"/>
+        </symbol>
+        <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </symbol>
+        <symbol id="i-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 3h7v7"/>
+            <path d="M10 14L21 3"/>
+            <path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/>
+        </symbol>
+        <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </symbol>
+        <symbol id="i-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+        </symbol>
+        <symbol id="i-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v5h5"/>
+            <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
+            <path d="M12 7v5l4 2"/>
+        </symbol>
+        <symbol id="i-tool" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </symbol>
+        <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </symbol>
+        <symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </symbol>
+        <symbol id="i-video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="14" height="14" rx="2"/>
+            <polygon points="16 10 22 7 22 17 16 14"/>
+        </symbol>
+        <symbol id="i-film" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="2.18"/>
+            <line x1="7" y1="2" x2="7" y2="22"/>
+            <line x1="17" y1="2" x2="17" y2="22"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <line x1="2" y1="7" x2="7" y2="7"/>
+            <line x1="2" y1="17" x2="7" y2="17"/>
+            <line x1="17" y1="17" x2="22" y2="17"/>
+            <line x1="17" y1="7" x2="22" y2="7"/>
+        </symbol>
+        <symbol id="i-scissors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="6" r="3"/>
+            <circle cx="6" cy="18" r="3"/>
+            <line x1="20" y1="4" x2="8.12" y2="15.88"/>
+            <line x1="14.47" y1="14.48" x2="20" y2="20"/>
+            <line x1="8.12" y1="8.12" x2="12" y2="12"/>
+        </symbol>
+    </svg>
+
+    <div id="toast" onclick="hideToast()">
+        <svg><use href="#i-warning"/></svg>
+        <span id="toastText"></span>
+    </div>
+
+    <div id="blockedView" class="view hidden">
+        <svg class="icon" style="width:64px;height:64px;color:#fff;margin-bottom:20px;">
+            <use href="#i-warning"/>
+        </svg>
+        <h1>AKSES DITOLAK</h1>
+        <p>Perangkat Telah Di Blockir Dari Tools Jika Ingin Membuka Chat Admin @SecondAccF</p>
+    </div>
+
+    <div id="authView" class="view">
+        <div class="auth-box">
+            <h1>PARADOX</h1>
+            <p style="margin-bottom:20px;color:#888;display:flex;align-items:center;justify-content:center;gap:6px;">
+                <svg class="icon" style="color:#888;"><use href="#i-lock"/></svg>
+                Masukkan Password untuk melanjutkan
+            </p>
+            <div id="ytSubBox" class="yt-sub-box not-subbed">
+                <div class="yt-sub-row">
+                    <svg class="yt-logo"><use href="#i-youtube"/></svg>
+                    <div class="yt-sub-text" id="ytSubText">Silahkan Subscribe Channel Kami Terlebih Dahulu</div>
+                </div>
+                <button class="yt-refresh-btn" onclick="checkYoutubeSub()">
+                    <svg class="icon" style="width:15px;height:15px;"><use href="#i-refresh"/></svg>
+                    Refresh Status Subscribe
+                </button>
+            </div>
+            <div id="authError" class="error-msg hidden"></div>
+            <input type="password" id="passwordInput" placeholder="Password..." autocomplete="off" disabled>
+            <button id="loginBtn" onclick="checkPassword()" disabled>
+                <svg class="icon"><use href="#i-lock"/></svg>
+                Login
+            </button>
+            <label class="remember-row" for="rememberDevice">
+                <input type="checkbox" id="rememberDevice">
+                <span class="custom-checkbox">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6L9 17l-5-5"/>
+                    </svg>
+                </span>
+                <span class="remember-label">Ingat Perangkat Saya</span>
+            </label>
         </div>
     </div>
 
+    <div id="loadingView" class="view hidden">
+        <div class="loader-container">
+            <div class="loader-text">LOADING</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="percent-text" id="percentText">0%</div>
+        </div>
+    </div>
+
+    <div id="dashboardView" class="view hidden">
+        <div class="tools-topbar">
+            <button class="btn-music" onclick="openMusic()">
+                <svg class="icon"><use href="#i-music"/></svg>
+                Play Music
+            </button>
+            <button class="btn-socials" onclick="openSocials()">
+                <svg class="icon"><use href="#i-users"/></svg>
+                Official Socials
+            </button>
+        </div>
+
+        <div class="dashboard-header">
+            <h1>PARADOX</h1>
+            <p>Pilih alat yang ingin kamu gunakan</p>
+        </div>
+
+        <div class="menu-grid">
+            <div class="menu-card" onclick="switchView('otpView')">
+                <svg class="icon menu-icon"><use href="#i-phone"/></svg>
+                <div class="menu-title">Spam OTP</div>
+                <div class="menu-desc">WhatsApp & SMS</div>
+            </div>
+            <div class="menu-card" onclick="switchView('installerView')">
+                <svg class="icon menu-icon"><use href="#i-shield"/></svg>
+                <div class="menu-title">Installer</div>
+                <div class="menu-desc">VPS Protection</div>
+            </div>
+            <div class="menu-card" onclick="switchView('bugWhatsappView')">
+                <svg class="icon menu-icon"><use href="#i-virus"/></svg>
+                <div class="menu-title">Bug WhatsApp</div>
+                <div class="menu-desc">WhatsApp Tools</div>
+            </div>
+            <div class="menu-card" onclick="switchView('toolsView')">
+                <svg class="icon menu-icon"><use href="#i-tool"/></svg>
+                <div class="menu-title">Tools</div>
+                <div class="menu-desc">Utility Tools</div>
+            </div>
+            <div class="menu-card" onclick="switchView('premiumFreeView')">
+                <svg class="icon menu-icon"><use href="#i-star"/></svg>
+                <div class="menu-title">Premium Gratis</div>
+                <div class="menu-desc">Upgrade Premium</div>
+            </div>
+            <div class="menu-card" onclick="switchView('subdomainView')">
+                <svg class="icon menu-icon"><use href="#i-globe"/></svg>
+                <div class="menu-title">Subdomain</div>
+                <div class="menu-desc">Cloudflare DNS</div>
+            </div>
+            <div class="menu-card" onclick="switchView('reportBannedView')">
+                <svg class="icon menu-icon"><use href="#i-warning"/></svg>
+                <div class="menu-title">Report Banned</div>
+                <div class="menu-desc">Telegram & WhatsApp</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="socialsView" class="view hidden">
+        <div class="social-topbar">
+            <button class="btn-back" onclick="closeSocials()">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="social-header">
+            <div class="official-badge">
+                <svg class="icon" style="width:14px;height:14px;"><use href="#i-check"/></svg>
+                OFFICIAL
+            </div>
+            <h1>Official Socials</h1>
+            <p>Temukan seluruh akun resmi FloX Tools</p>
+        </div>
+        <div class="social-list">
+            <div class="social-card youtube" onclick="openOfficialLink('https://www.youtube.com/@FloX-Tools', 'YouTube')">
+                <div class="social-logo"><svg><use href="#i-youtube"/></svg></div>
+                <div class="social-info">
+                    <div class="social-platform">YouTube</div>
+                    <div class="social-name">FloX-Tools</div>
+                    <div class="social-handle">@FloX-Tools</div>
+                </div>
+                <svg class="icon social-arrow"><use href="#i-external"/></svg>
+            </div>
+            <div class="social-card telegram" onclick="openOfficialLink('https://t.me/FloXID', 'Telegram')">
+                <div class="social-logo"><svg><use href="#i-telegram"/></svg></div>
+                <div class="social-info">
+                    <div class="social-platform">Telegram</div>
+                    <div class="social-name">FloXID</div>
+                    <div class="social-handle">@FloXID</div>
+                </div>
+                <svg class="icon social-arrow"><use href="#i-external"/></svg>
+            </div>
+            <div class="social-card telegram" onclick="openOfficialLink('https://t.me/SecondAccF', 'Telegram')">
+                <div class="social-logo"><svg><use href="#i-telegram"/></svg></div>
+                <div class="social-info">
+                    <div class="social-platform">Telegram</div>
+                    <div class="social-name">SecondAccF</div>
+                    <div class="social-handle">@SecondAccF</div>
+                </div>
+                <svg class="icon social-arrow"><use href="#i-external"/></svg>
+            </div>
+            <div class="social-card instagram" onclick="openOfficialLink('https://www.instagram.com/floxtools', 'Instagram')">
+                <div class="social-logo"><svg><use href="#i-instagram"/></svg></div>
+                <div class="social-info">
+                    <div class="social-platform">Instagram</div>
+                    <div class="social-name">floxtools</div>
+                    <div class="social-handle">@floxtools</div>
+                </div>
+                <svg class="icon social-arrow"><use href="#i-external"/></svg>
+            </div>
+            <div class="social-card tiktok" onclick="openOfficialLink('https://www.tiktok.com/@floxtools-711', 'TikTok')">
+                <div class="social-logo"><svg><use href="#i-tiktok"/></svg></div>
+                <div class="social-info">
+                    <div class="social-platform">TikTok</div>
+                    <div class="social-name">floxtools-711</div>
+                    <div class="social-handle">@floxtools-711</div>
+                </div>
+                <svg class="icon social-arrow"><use href="#i-external"/></svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="socialLoading" class="hidden">
+        <div class="social-loading-box">
+            <div class="official-spinner"></div>
+            <div class="social-loading-title">OFFICIAL ACCOUNTS</div>
+            <div class="social-loading-text">Menghubungkan ke akun resmi...</div>
+            <div class="social-loading-platform" id="socialLoadingPlatform">Memverifikasi akun</div>
+        </div>
+    </div>
+
+    <div id="otpView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('dashboardView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-send"/></svg>
+                Spam OTP
+            </h2>
+            <p>Masukkan nomor target (Maks 5)</p>
+        </div>
+        <div class="input-group">
+            <div class="phone-inputs">
+                <input type="number" class="phone form-input" placeholder="08xxxxxxxxxx">
+                <input type="number" class="phone form-input" placeholder="08xxxxxxxxxx">
+                <input type="number" class="phone form-input" placeholder="08xxxxxxxxxx">
+                <input type="number" class="phone form-input" placeholder="08xxxxxxxxxx">
+                <input type="number" class="phone form-input" placeholder="08xxxxxxxxxx">
+            </div>
+            <button class="btn-primary" id="btnReq" onclick="requestOTP()">
+                <svg class="icon"><use href="#i-send"/></svg>
+                Request OTP
+            </button>
+        </div>
+        <div id="resultsArea" class="results-area"></div>
+        <div id="statsBox" class="stats-box hidden">
+            <div class="stat-item stat-success">
+                <div class="stat-label">Success</div>
+                <div class="stat-value" id="statSuccess">0</div>
+            </div>
+            <div class="stat-item stat-ratelimit">
+                <div class="stat-label">Rate Limit</div>
+                <div class="stat-value" id="statRate">0</div>
+            </div>
+            <div class="stat-item stat-bad">
+                <div class="stat-label">Bad Request</div>
+                <div class="stat-value" id="statBad">0</div>
+            </div>
+            <div class="stat-item stat-error">
+                <div class="stat-label">Error</div>
+                <div class="stat-value" id="statError">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bugWhatsappView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('dashboardView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-virus"/></svg>
+                Bug WhatsApp
+            </h2>
+            <p>Pilih alat yang ingin digunakan</p>
+        </div>
+        <div class="menu-grid">
+            <div class="menu-card" onclick="switchView('delayBugView')">
+                <svg class="icon menu-icon"><use href="#i-warning"/></svg>
+                <div class="menu-title">Delay Invisible</div>
+                <div class="menu-desc">Kirim bug delay</div>
+            </div>
+            <div class="menu-card" onclick="switchView('clearBugView')">
+                <svg class="icon menu-icon"><use href="#i-trash"/></svg>
+                <div class="menu-title">Hilangkan Bug</div>
+                <div class="menu-desc">Bersihkan bug target</div>
+            </div>
+            <div class="menu-card" onclick="switchView('senderManageView')" style="grid-column: span 2;">
+                <svg class="icon menu-icon"><use href="#i-server"/></svg>
+                <div class="menu-title">Tambah Sender</div>
+                <div class="menu-desc">Hubungkan nomor WhatsApp sebagai pengirim</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="delayBugView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('bugWhatsappView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-warning"/></svg>
+                Delay Invisible
+            </h2>
+            <p>Kirim bug delay ke nomor target</p>
+        </div>
+        <div class="input-group">
+            <input type="number" id="delayTarget" class="form-input" placeholder="Nomor target (628xxx)">
+            <button class="btn-primary" id="btnDelaySend" onclick="startDelayBug()">
+                <svg class="icon"><use href="#i-send"/></svg>
+                Kirim Delay
+            </button>
+        </div>
+        <div class="sender-list" id="delayMonitor">
+            <h3>Monitor Bug Delay</h3>
+            <p style="color:#888;text-align:center;padding:20px;background:#151515;border-radius:10px;border:1px dashed #333;font-size:13px;" id="delayMonitorEmpty">
+                Belum ada aktivitas.
+            </p>
+        </div>
+    </div>
+
+    <div id="clearBugView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('bugWhatsappView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-trash"/></svg>
+                Hilangkan Bug
+            </h2>
+            <p>Bersihkan bug dari nomor target</p>
+        </div>
+        <div class="input-group">
+            <input type="number" id="clearTarget" class="form-input" placeholder="Nomor target (628xxx)">
+            <button class="btn-primary" id="btnClearSend" onclick="startClearBug()">
+                <svg class="icon"><use href="#i-trash"/></svg>
+                Hilangkan
+            </button>
+        </div>
+        <div class="sender-list" id="clearMonitor">
+            <h3>Monitor Bug Clear</h3>
+            <p style="color:#888;text-align:center;padding:20px;background:#151515;border-radius:10px;border:1px dashed #333;font-size:13px;" id="clearMonitorEmpty">
+                Belum ada aktivitas.
+            </p>
+        </div>
+    </div>
+
+    <div id="senderManageView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('bugWhatsappView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-server"/></svg>
+                Tambah Sender
+            </h2>
+            <p>Hubungkan nomor WhatsApp sebagai pengirim bug</p>
+        </div>
+        <div class="input-group">
+            <input type="number" id="senderPhone" class="form-input" placeholder="Send Your Number (628xxx / 1xxx / dll)">
+            <div class="pair-mode-tabs">
+                <button type="button" id="pairModeQR" class="pair-mode-btn active" onclick="setPairMode('qr')">
+                    <svg class="icon" style="width:16px;height:16px;"><use href="#i-refresh"/></svg>
+                    QR Code
+                </button>
+                <button type="button" id="pairModeCode" class="pair-mode-btn" onclick="setPairMode('code')">
+                    <svg class="icon" style="width:16px;height:16px;"><use href="#i-lock"/></svg>
+                    Pairing Code
+                </button>
+            </div>
+            <button class="btn-primary" id="btnCreateQR" onclick="createSenderPairing()">
+                <svg class="icon"><use href="#i-refresh"/></svg>
+                Create
+            </button>
+        </div>
+        <div id="qrWrap" class="qr-wrap">
+            <p style="color:#00ff88;font-weight:bold;text-align:center;">Scan QR ini:</p>
+            <img id="qrImage" src="" alt="QR">
+            <p class="note">QR akan expired dalam 3 menit jika tidak ada aktivitas</p>
+        </div>
+        <div id="codeWrap" class="qr-wrap">
+            <p style="color:#00ff88;font-weight:bold;text-align:center;">Masukkan Pairing Code di WhatsApp:</p>
+            <div class="pair-code" id="pairCode">-</div>
+            <p class="note">Code akan expired dalam 3 menit jika tidak ada aktivitas</p>
+        </div>
+        <div class="sender-list" id="senderHistoryList"></div>
+        <div class="sender-list" id="senderList"></div>
+    </div>
+
+    <div id="subdomainView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('dashboardView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-globe"/></svg>
+                Subdomain
+            </h2>
+            <p>Buat subdomain panel &amp; node via Cloudflare</p>
+        </div>
+        <div class="input-group">
+            <input type="text" id="subdoIp" class="form-input" placeholder="IP VPS (contoh: 1.2.3.4)" autocomplete="off">
+            <input type="text" id="subdoPanelHost" class="form-input" placeholder="Nama Domain Panel (contoh: mypanel)" autocomplete="off">
+            <input type="text" id="subdoNodeHost" class="form-input" placeholder="Nama Domain Node (default: node.mypanel)" autocomplete="off">
+            <div class="subdo-domain-picker">
+                <div class="subdo-picker-header" id="subdoPickerHeader" onclick="toggleSubdoDomainList()">
+                    <span>Pilihan Domain</span>
+                    <svg class="icon"><use href="#i-chevron-down"/></svg>
+                </div>
+                <div class="subdo-picker-list hidden" id="subdoDomainList">
+                    <div class="subdo-picker-loading">
+                        <div class="mini-spin"></div>
+                        Memuat domain...
+                    </div>
+                </div>
+            </div>
+            <button class="btn-primary" id="btnCreateSubdo" onclick="createSubdomain()">
+                <svg class="icon"><use href="#i-check"/></svg>
+                Create Domain
+            </button>
+        </div>
+        <div id="subdoResult" class="results-area"></div>
+        <div class="subdo-history-wrap">
+            <h3>
+                <svg class="icon" style="width:14px;height:14px;"><use href="#i-history"/></svg>
+                History Pembuatan Domain
+            </h3>
+            <div id="subdoHistoryList">
+                <div class="subdo-history-empty">Memuat history...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="subdoLoadingOverlay" class="hidden">
+        <div class="subdo-loading-box">
+            <div class="subdo-big-spinner"></div>
+            <div class="subdo-loading-text">Membuat Domain</div>
+            <div class="subdo-loading-sub">Mohon tunggu, sedang membuat 2 record DNS...</div>
+        </div>
+    </div>
+
+    <div id="toolsView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('dashboardView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-tool"/></svg>
+                Tools
+            </h2>
+            <p>Pilih tool yang ingin digunakan</p>
+        </div>
+
+        <div class="tools-grid">
+            <div class="tool-card" onclick="switchView('skipLinkView')">
+                <svg class="icon tool-icon"><use href="#i-link"/></svg>
+                <div class="tool-title">Skip Link Sfl.gl</div>
+                <div class="tool-desc">Bypass shortlink Sfl.gl</div>
+            </div>
+            <div class="tool-card" onclick="switchView('webToApkView')">
+                <svg class="icon tool-icon"><use href="#i-phone"/></svg>
+                <div class="tool-title">Web To Apk</div>
+                <div class="tool-desc">Bungkus website jadi APK</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="skipLinkView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('toolsView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-link"/></svg>
+                Skip Link Sfl.gl
+            </h2>
+            <p>Masukkan URL Sfl.gl untuk dilewati</p>
+        </div>
+
+        <div class="input-group">
+            <input
+                type="url"
+                id="skipUrlInput"
+                class="form-input"
+                placeholder="https://sfl.gl/xxxxx"
+                autocomplete="off"
+            >
+            <button class="btn-primary" id="btnSkipStart" onclick="startSkipLink()">
+                <svg class="icon"><use href="#i-link"/></svg>
+                Start Skip
+            </button>
+        </div>
+
+        <div id="skipLoadingBox" class="skip-loading-box hidden">
+            <div class="skip-spinner"></div>
+            <div class="skip-loading-text" id="skipLoadingText">Memproses... mohon tunggu</div>
+        </div>
+
+        <div id="skipResultArea"></div>
+
+        <div class="skip-history-wrap">
+            <h3>
+                <svg class="icon" style="width:14px;height:14px;"><use href="#i-history"/></svg>
+                Riwayat Skip Link
+            </h3>
+            <div id="skipHistoryList" class="skip-history-list">
+                <div class="skip-history-empty">Belum ada riwayat.</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="webToApkView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('toolsView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-phone"/></svg>
+                Web To Apk
+            </h2>
+            <p>Bungkus website apa pun jadi APK Android</p>
+        </div>
+
+        <div class="input-group">
+            <input
+                type="url"
+                id="apkUrl"
+                class="form-input"
+                placeholder="URL Target (https://example.com)"
+                autocomplete="off"
+            >
+            <input
+                type="text"
+                id="apkName"
+                class="form-input"
+                placeholder="Nama Aplikasi"
+                autocomplete="off"
+            >
+
+            <div class="banner-upload-box" id="apkBannerBox" onclick="document.getElementById('apkBannerInput').click()">
+                <div class="banner-placeholder" id="apkBannerPlaceholder">
+                    <svg class="icon"><use href="#i-video"/></svg>
+                    <span>Tap untuk pilih Banner dari Galeri</span>
+                </div>
+                <img id="apkBannerPreview" class="banner-preview hidden" src="" alt="">
+                <button class="banner-clear hidden" id="apkBannerClear" onclick="event.stopPropagation();clearApkBanner()">×</button>
+            </div>
+            <input
+                type="file"
+                id="apkBannerInput"
+                accept="image/*"
+                style="display:none;"
+                onchange="handleApkBanner(event)"
+            >
+
+            <button class="btn-primary" id="btnApkConvert" onclick="startApkConvert()">
+                <svg class="icon"><use href="#i-refresh"/></svg>
+                Convert
+            </button>
+        </div>
+
+        <div id="apkLoadingBox" class="apk-loading-box hidden">
+            <div class="apk-spinner"></div>
+            <div class="apk-loading-text" id="apkLoadingText">Membangun APK... mohon tunggu</div>
+        </div>
+
+        <div id="apkResultArea"></div>
+
+        <div class="apk-history-wrap">
+            <h3>
+                <svg class="icon" style="width:14px;height:14px;"><use href="#i-history"/></svg>
+                History Pembuatan APK
+            </h3>
+            <div id="apkHistoryList" class="apk-history-list">
+                <div class="apk-history-empty">Belum ada riwayat.</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="reportBannedView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('dashboardView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-warning"/></svg>
+                Report Banned
+            </h2>
+            <p>Pilih platform untuk memulai laporan massal</p>
+        </div>
+
+        <div class="platform-grid" id="platformSelectArea">
+            <div class="platform-card telegram" onclick="openReportTelegram()">
+                <svg><use href="#i-telegram"/></svg>
+                <span>Telegram</span>
+            </div>
+            <div class="platform-card whatsapp" onclick="showToast('Fitur WA belum tersedia')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 21.889c-1.73 0-3.405-.49-4.862-1.418l-5.149 1.474 1.502-5.018a9.865 9.865 0 0 1-1.553-5.317c0-5.448 4.432-9.88 9.881-9.88 2.639 0 5.12 1.028 6.986 2.895a9.82 9.82 0 0 1 2.894 6.985c0 5.449-4.432 9.879-9.699 9.879zM5.347 19.134l.297.176a8.17 8.17 0 0 0 4.166 1.14c4.538 0 8.23-3.693 8.23-8.231 0-2.198-.856-4.265-2.41-5.82a8.176 8.176 0 0 0-5.82-2.41c-4.539 0-8.232 3.693-8.232 8.23 0 1.48.398 2.93 1.153 4.188l.194.323-.737 2.462 2.517-.72z"/></svg>
+                <span>WhatsApp</span>
+            </div>
+        </div>
+
+        <div id="telegramReportForm" class="hidden" style="width:100%;max-width:600px;display:flex;flex-direction:column;align-items:center;">
+            
+            <div class="session-tabs" id="sessionTabs">
+                <div class="session-tab active" onclick="switchSession(1)">Session 1</div>
+                <div class="session-tab" onclick="switchSession(2)">Session 2</div>
+                <div class="session-tab" onclick="switchSession(3)">Session 3</div>
+            </div>
+
+            <div id="sessionContent" class="report-form">
+                <div>
+                    <h3>Target Username / Link</h3>
+                    <input type="text" class="form-input" id="tgTarget" placeholder="https://t.me/username atau @username">
+                </div>
+
+                <div>
+                    <h3>Alasan Laporan</h3>
+                    <select class="form-input" id="tgReason" style="appearance:none;">
+                        <option value="spam">Spam / Unwanted Advertising</option>
+                        <option value="fake">Fake Account / Scam</option>
+                        <option value="violence">Violence / Threats</option>
+                        <option value="porn">Pornography / Illegal Adult</option>
+                        <option value="childAbuse">Child Abuse / CSAM</option>
+                        <option value="copyright">Copyright Infringement</option>
+                        <option value="personal">Publishing Personal Info / Doxxing</option>
+                    </select>
+                </div>
+
+                <div>
+                    <h3>Thread Report (Total Laporan)</h3>
+                    <div class="slider-group">
+                        <label><span>Jumlah</span> <span id="valThread">100</span></label>
+                        <input type="range" id="inputThread" min="50" max="500" step="10" value="100" oninput="updateSlider('thread')">
+                        <div class="warning-text hidden" id="warnThread">Ini Akan Membuat Akun Anda Sendiri Yang Terkena Limit Tidak Menutup Kemungkinan Terbanned</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3>Waktu Per Report (Detik)</h3>
+                    <div class="slider-group">
+                        <label><span>Jeda</span> <span id="valDelay">1.0s</span></label>
+                        <input type="range" id="inputDelay" min="0.1" max="3" step="0.1" value="1.0" oninput="updateSlider('delay')">
+                        <div class="warning-text hidden" id="warnDelay">Jika Melapor Terlalu Cepat Akun Anda Akan Di Tandai Sebagai Laporan Palsu</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3>Pilih Akun Pengirim (Sender)</h3>
+                    <div class="account-list" id="tgAccountList">
+                        <div style="padding:15px;text-align:center;color:#888;font-size:12px;">Belum ada akun. Tambah akun dulu.</div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" style="margin-top:10px;" onclick="startTelegramReport()">
+                    <svg class="icon"><use href="#i-send"/></svg> Mulai Report
+                </button>
+
+                <h3 style="margin-top:15px;">Terminal</h3>
+                <div class="terminal-box" id="tgTerminal">
+                    <div class="terminal-line sys">
+                        <span class="time">[SYSTEM]</span>
+                        <span class="msg">Sistem siap. Silakan atur parameter dan mulai report.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="width:100%;margin-top:25px;padding-top:20px;border-top:1px dashed #333;">
+                <h3 style="font-size:14px;color:#888;text-transform:uppercase;margin-bottom:10px;">Tambah Akun Baru</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <input type="number" id="addAccPhone" class="form-input" placeholder="Nomor Telegram (628xxx)">
+                    <button class="btn-primary" onclick="addTelegramAccount()" id="btnAddAcc">
+                        <svg class="icon"><use href="#i-check"/></svg> Kirim OTP
+                    </button>
+                    
+                    <div id="otpForm" class="hidden" style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+                        <input type="number" id="addAccOtp" class="form-input" placeholder="Kode OTP">
+                        <input type="password" id="addAcc2fa" class="form-input" placeholder="Password 2FA (Kosongkan jika tidak ada)">
+                        <button class="btn-primary" style="background:#00c853;" onclick="verifyTelegramAccount()">
+                            <svg class="icon"><use href="#i-lock"/></svg> Verifikasi & Simpan Akun
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="premiumFreeView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('dashboardView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-star"/></svg>
+                Premium Gratis
+            </h2>
+            <p>Pilih aplikasi premium yang ingin diaktivasi</p>
+        </div>
+
+        <div class="pg-grid">
+            <div class="pg-card pg-coming" onclick="showComingSoon('capcut')">
+                <span class="pg-badge-soon">COMING SOON</span>
+                <svg class="icon pg-icon"><use href="#i-scissors"/></svg>
+                <div class="pg-title">CapCut Pro</div>
+                <div class="pg-desc">Aktivasi CapCut Pro</div>
+            </div>
+
+            <div class="pg-card" onclick="switchView('alightView')">
+                <svg class="icon pg-icon"><use href="#i-video"/></svg>
+                <div class="pg-title">Alight Motion</div>
+                <div class="pg-desc">Aktivasi Premium</div>
+            </div>
+
+            <div class="pg-card pg-coming" onclick="showComingSoon('netflix')">
+                <span class="pg-badge-soon">COMING SOON</span>
+                <svg class="icon pg-icon"><use href="#i-film"/></svg>
+                <div class="pg-title">Netflix Premium</div>
+                <div class="pg-desc">Aktivasi Netflix</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="alightView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('premiumFreeView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-video"/></svg>
+                Alight Motion Premium
+            </h2>
+            <p>Aktivasi premium gratis</p>
+        </div>
+
+        <div class="am-flow">
+            <div class="am-tabs">
+                <button class="am-tab active" id="amTabManual" onclick="setAmMode('manual')">
+                    <svg class="icon" style="width:14px;height:14px;"><use href="#i-send"/></svg>
+                    Manual
+                </button>
+                <button class="am-tab" id="amTabAuto" onclick="setAmMode('auto')">
+                    <svg class="icon" style="width:14px;height:14px;"><use href="#i-refresh"/></svg>
+                    Otomatis
+                </button>
+            </div>
+
+            <div class="am-panel" id="amPanelManual">
+                <input
+                    type="email"
+                    id="amEmail"
+                    class="form-input"
+                    placeholder="Masukkan email kamu (contoh: nama@gmail.com)"
+                    autocomplete="off"
+                >
+                <button class="btn-primary" id="btnAmSend" onclick="amSendLink()">
+                    <svg class="icon"><use href="#i-send"/></svg>
+                    Kirim Link Verifikasi
+                </button>
+
+                <div id="amLinkStep" class="hidden" style="display:flex;flex-direction:column;gap:10px;">
+                    <p style="color:#888;font-size:12px;text-align:center;margin:8px 0;">
+                        Cek inbox email kamu, klik tombol verifikasi, lalu salin URL setelah redirect.
+                    </p>
+                    <input
+                        type="url"
+                        id="amMagicLink"
+                        class="form-input"
+                        placeholder="Paste URL verifikasi di sini"
+                        autocomplete="off"
+                    >
+                    <button class="btn-primary" id="btnAmVerify" onclick="amVerifyLink()" style="background:#00c853;">
+                        <svg class="icon"><use href="#i-check"/></svg>
+                        Verifikasi
+                    </button>
+                </div>
+            </div>
+
+            <div class="am-panel hidden" id="amPanelAuto">
+                <p style="color:#888;font-size:13px;text-align:center;line-height:1.5;margin-bottom:8px;">
+                    Sistem otomatis buat email sementara, kirim link, tunggu verifikasi, dan kasih hasil. Gak perlu email pribadi.
+                </p>
+                <button class="btn-primary" id="btnAmAuto" onclick="amAutoActivate()">
+                    <svg class="icon"><use href="#i-refresh"/></svg>
+                    Aktivasi Otomatis
+                </button>
+            </div>
+
+            <div id="amLoading" class="am-loading-box hidden">
+                <div class="am-spinner"></div>
+                <div class="am-loading-text" id="amLoadingText">Memproses...</div>
+            </div>
+
+            <div id="amResult"></div>
+        </div>
+    </div>
+
+    <div id="comingSoonView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('premiumFreeView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+
+        <div class="cs-container">
+            <svg class="icon cs-icon"><use href="#i-warning"/></svg>
+            <div class="cs-title" id="csTitle">COMING SOON</div>
+            <div class="cs-desc" id="csDesc">
+                Fitur ini sedang dalam pengembangan. Pantau terus update-nya!
+            </div>
+        </div>
+    </div>
+
+    <div id="installerView" class="view hidden">
+        <div class="panel-topbar">
+            <button class="btn-back" onclick="switchView('dashboardView')">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="panel-header">
+            <h2>
+                <svg class="icon icon-lg" style="color:#ff3333;"><use href="#i-shield"/></svg>
+                Installer
+            </h2>
+            <p>Kelola proteksi VPS kamu</p>
+        </div>
+        <div class="sliding-toggle-container" id="toggleContainer">
+            <div class="slider-bg"></div>
+            <button class="toggle-btn active" id="btnInstall" onclick="setToggle('install')">
+                <svg class="icon"><use href="#i-shield"/></svg>
+                Install
+            </button>
+            <button class="toggle-btn" id="btnUninstall" onclick="setToggle('uninstall')">
+                <svg class="icon"><use href="#i-trash"/></svg>
+                Uninstall
+            </button>
+        </div>
+        <div id="formInstall" style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:600px;">
+            <input type="text" id="vpsHost" class="form-input" placeholder="IP VPS (Contoh: 192.168.1.1)">
+            <input type="password" id="vpsPass" class="form-input" placeholder="Password Root SSH">
+            <button class="btn-primary" id="btnInstallSubmit" onclick="startInstall()">
+                <svg class="icon"><use href="#i-shield"/></svg>
+                Mulai Install
+            </button>
+        </div>
+        <div id="formUninstall" class="hidden" style="width:100%;max-width:600px;">
+            <button class="btn-primary" onclick="alert('Fitur Uninstall belum tersedia.')" style="background:#333;">
+                <svg class="icon"><use href="#i-trash"/></svg>
+                Coming Soon
+            </button>
+        </div>
+        <div class="log-box" id="installLog"><div id="logContent"></div></div>
+    </div>
+
+    <div id="musicView" class="view hidden">
+        <div class="music-topbar">
+            <button class="btn-back" onclick="closeMusic()">
+                <svg class="icon"><use href="#i-arrow-left"/></svg>
+                Kembali
+            </button>
+        </div>
+        <div class="music-header">
+            <h1>
+                <svg class="icon icon-lg" style="color:#00ff88;"><use href="#i-music"/></svg>
+                MUSIC
+            </h1>
+            <p>Pilih lagu dari folder assets/</p>
+        </div>
+        <div id="songList" class="song-list"></div>
+    </div>
+
+    <div id="nowPlaying" class="now-playing hidden">
+        <svg class="icon" style="color:#00ff88;flex-shrink:0;"><use href="#i-music"/></svg>
+        <div class="now-info">
+            <div class="now-title" id="nowTitle">-</div>
+            <div class="now-artist" id="nowArtist">-</div>
+        </div>
+        <div class="now-controls">
+            <button class="now-btn" id="nowPlayBtn" onclick="togglePlayFromBar()">
+                <svg class="icon"><use href="#i-play"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="senderSelectModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3>Pilih Sender</h3>
+            <p>Pilih nomor sender yang akan digunakan</p>
+            <div id="senderSelectList" style="max-height:300px;overflow-y:auto;margin-bottom:12px;"></div>
+            <button class="cancel" onclick="closeSenderSelectModal()">Batal</button>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" preload="none"></audio>
+
+    <script>
+        let attempts = 0;
+        const API = '/api';
+        const SECRET_TOKEN = "PARADOX_SUPER_SECRET_998877";
+        const REMEMBER_KEY = 'paradox_remember';
+        const YOUTUBE_URL = "https://www.youtube.com/@FloX-Tools";
+        const SUB_KEY = 'paradox_subscribed';
+        const SKIP_HISTORY_KEY = 'paradox_skip_history';
+
+        const SONGS = [
+            { title: "Sadrah", artist: "For Revenge", src: "assets/For Revenge - Sadrah.mp3" },
+            { title: "Jatuh Suka", artist: "Tulus", src: "assets/Tulus - Jatuh Suka.mp3" },
+            { title: "Mulai", artist: "Idgitaf", src: "assets/Idgitaf - Mulai.mp3" }
+        ];
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view').forEach(v => {
+                if (v.id !== 'authView' && v.id !== 'loadingView' && v.id !== 'blockedView' && v.id !== 'musicView') {
+                    v.classList.add('hidden');
+                }
+            });
+
+            if (viewId === 'subdomainView') {
+                loadSubdoDomains();
+                loadSubdoHistory();
+            }
+
+            if (viewId === 'skipLinkView') {
+                loadSkipHistory();
+            }
+            
+            if (viewId === 'webToApkView') {
+                loadApkHistory();
+            }
+
+            const target = document.getElementById(viewId);
+            if (target) target.classList.remove('hidden');
+
+            if (viewId === 'senderManageView' && typeof loadSenders === 'function') {
+                try { loadSenders(); } catch (e) { console.warn("loadSenders:", e); }
+            }
+        }
+
+const APK_HISTORY_KEY = 'paradox_apk_history';
+let apkBannerDataUrl = null;
+
+function handleApkBanner(evt) {
+    const file = evt.target.files && evt.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+        alert('File harus berupa gambar!');
+        return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Ukuran banner maksimal 5MB!');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        apkBannerDataUrl = e.target.result;
+        const box = document.getElementById('apkBannerBox');
+        const placeholder = document.getElementById('apkBannerPlaceholder');
+        const preview = document.getElementById('apkBannerPreview');
+        const clearBtn = document.getElementById('apkBannerClear');
+
+        preview.src = apkBannerDataUrl;
+        preview.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        clearBtn.classList.remove('hidden');
+        box.classList.add('has-file');
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearApkBanner() {
+    apkBannerDataUrl = null;
+    document.getElementById('apkBannerInput').value = '';
+    document.getElementById('apkBannerPreview').src = '';
+    document.getElementById('apkBannerPreview').classList.add('hidden');
+    document.getElementById('apkBannerPlaceholder').classList.remove('hidden');
+    document.getElementById('apkBannerClear').classList.add('hidden');
+    document.getElementById('apkBannerBox').classList.remove('has-file');
+}
+
+async function startApkConvert() {
+    const url = (document.getElementById('apkUrl').value || '').trim();
+    const name = (document.getElementById('apkName').value || '').trim();
+    const btn = document.getElementById('btnApkConvert');
+    const loadingBox = document.getElementById('apkLoadingBox');
+    const loadingText = document.getElementById('apkLoadingText');
+    const resultArea = document.getElementById('apkResultArea');
+
+    if (!url) return alert('Isi URL target!');
+    if (!/^https?:\/\//i.test(url)) return alert('URL harus diawali http:// atau https://');
+    if (!name) return alert('Isi nama aplikasi!');
+    
+    btn.disabled = true;
+    btn.innerHTML = `<svg class="icon spin"><use href="#i-refresh"/></svg> Converting...`;
+    resultArea.innerHTML = '';
+    loadingBox.classList.remove('hidden');
+    loadingText.innerText = 'Mengirim antrean build ke GitHub...';
+
+    try {
+        const res = await apiFetch({
+            action: 'web_to_apk_trigger',
+            url: url,
+            name: name,
+            banner: apkBannerDataUrl || null
+        });
+        const data = await res.json();
+
+        if (!data.success) throw new Error(data.error || 'Gagal memulai build');
+
+        const runId = data.run_id;
+        let isDone = false;
+        let artifactId = null;
+        
+        const startedAt = Date.now();
+        while (!isDone) {
+            const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+            loadingText.innerText = `Membangun APK di GitHub... (${elapsed}s)`;
+
+            await new Promise(r => setTimeout(r, 5000));
+
+            const statusRes = await apiFetch({
+                action: 'web_to_apk_status',
+                run_id: runId
+            });
+            const statusData = await statusRes.json();
+
+            if (!statusData.success) throw new Error(statusData.error || 'Gagal cek status');
+
+            if (statusData.done) {
+                if (statusData.success) {
+                    isDone = true;
+                    artifactId = statusData.artifact_id;
+                } else {
+                    throw new Error(statusData.error || 'Build GitHub gagal');
+                }
+            }
+        }
+
+        loadingText.innerText = 'Mengunduh file APK...';
+        const dlRes = await apiFetch({
+            action: 'web_to_apk_download',
+            artifact_id: artifactId,
+            name: name
+        });
+        const dlData = await dlRes.json();
+
+        if (!dlData.success) throw new Error(dlData.error || 'Gagal download artifact');
+
+        const zipB64 = dlData.b64;
+        const dataUrl = `data:application/zip;base64,${zipB64}`;
+        
+        const entry = {
+            id: Date.now().toString(),
+            name: name,
+            url: url,
+            filename: dlData.filename,
+            downloadUrl: dataUrl,
+            banner: apkBannerDataUrl,
+            timestamp: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })
+        };
+        
+        saveApkHistory(entry);
+
+        resultArea.innerHTML = `
+            <div class="skip-result-card">
+                <div class="skip-result-title">
+                    <svg class="icon" style="width:16px;height:16px;"><use href="#i-check"/></svg>
+                    APK Berhasil Dibuat
+                </div>
+                <div class="skip-result-row">
+                    <span class="label">Nama</span>
+                    <span class="value">${escapeHtml(name)}</span>
+                </div>
+                <div class="skip-result-row">
+                    <span class="label">URL</span>
+                    <span class="value">${escapeHtml(url)}</span>
+                </div>
+                <div class="skip-result-row">
+                    <span class="label">File</span>
+                    <span class="value">${escapeHtml(dlData.filename)} (ZIP)</span>
+                </div>
+            </div>
+        `;
+        autoDownloadApk(dataUrl, dlData.filename);
+
+    } catch (e) {
+        resultArea.innerHTML = `
+            <div class="skip-result-card" style="border-color:#ff3333;">
+                <div class="skip-result-title" style="color:#ff3333;">
+                    <svg class="icon" style="width:16px;height:16px;"><use href="#i-x"/></svg>
+                    Gagal Convert
+                </div>
+                <div class="skip-result-row">
+                    <span class="label">Pesan</span>
+                    <span class="value" style="color:#ff5555;">${escapeHtml(e.message || String(e))}</span>
+                </div>
+            </div>
+        `;
+    } finally {
+        loadingBox.classList.add('hidden');
+        btn.disabled = false;
+        btn.innerHTML = `<svg class="icon"><use href="#i-refresh"/></svg> Convert`;
+    }
+}
+function autoDownloadApk(downloadUrl, filename) {
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+function saveApkHistory(entry) {
+    let history = [];
+    try {
+        history = JSON.parse(localStorage.getItem(APK_HISTORY_KEY) || '[]');
+        if (!Array.isArray(history)) history = [];
+    } catch { history = []; }
+
+    history.push(entry);
+    if (history.length > 50) history = history.slice(-50);
+    localStorage.setItem(APK_HISTORY_KEY, JSON.stringify(history));
+    loadApkHistory();
+}
+
+function loadApkHistory() {
+    const container = document.getElementById('apkHistoryList');
+    if (!container) return;
+
+    let history = [];
+    try {
+        history = JSON.parse(localStorage.getItem(APK_HISTORY_KEY) || '[]');
+        if (!Array.isArray(history)) history = [];
+    } catch { history = []; }
+
+    if (!history.length) {
+        container.innerHTML = `<div class="apk-history-empty">Belum ada riwayat.</div>`;
+        return;
+    }
+
+    container.innerHTML = '';
+    history.slice().reverse().forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'apk-history-item';
+        el.innerHTML = `
+            <img class="apk-thumb" src="${escapeHtml(item.banner || '')}" alt="">
+            <div class="apk-meta">
+                <div class="apk-name">${escapeHtml(item.name)}</div>
+                <div class="apk-url">${escapeHtml(item.url)}</div>
+                <div class="apk-date">${escapeHtml(item.timestamp || '-')}</div>
+            </div>
+            <a class="apk-download-btn" href="${escapeHtml(item.downloadUrl)}" download="${escapeHtml(item.filename)}">
+                <svg class="icon" style="width:14px;height:14px;"><use href="#i-check"/></svg>
+                Download
+            </a>
+        `;
+        container.appendChild(el);
+    });
+}
+
+        let amCurrentMode = 'manual';
+
+        function showComingSoon(feature) {
+            const title = document.getElementById('csTitle');
+            const desc = document.getElementById('csDesc');
+
+            if (feature === 'capcut') {
+                title.innerText = 'CapCut Pro — Coming Soon';
+                desc.innerText = 'Fitur aktivasi CapCut Pro sedang dalam pengembangan. Pantau terus update-nya di channel Telegram!';
+            } else if (feature === 'netflix') {
+                title.innerText = 'Netflix Premium — Coming Soon';
+                desc.innerText = 'Fitur aktivasi Netflix Premium sedang dalam pengembangan. Pantau terus update-nya di channel Telegram!';
+            } else {
+                title.innerText = 'COMING SOON';
+                desc.innerText = 'Fitur ini sedang dalam pengembangan.';
+            }
+
+            switchView('comingSoonView');
+        }
+
+        function setAmMode(mode) {
+            amCurrentMode = mode;
+
+            const tabManual = document.getElementById('amTabManual');
+            const tabAuto = document.getElementById('amTabAuto');
+            const panelManual = document.getElementById('amPanelManual');
+            const panelAuto = document.getElementById('amPanelAuto');
+
+            if (mode === 'auto') {
+                tabAuto.classList.add('active');
+                tabManual.classList.remove('active');
+                panelAuto.classList.remove('hidden');
+                panelManual.classList.add('hidden');
+            } else {
+                tabManual.classList.add('active');
+                tabAuto.classList.remove('active');
+                panelManual.classList.remove('hidden');
+                panelAuto.classList.add('hidden');
+            }
+        }
+
+         async function amSendLink() {
+            const emailInput = document.getElementById('amEmail');
+            const email = (emailInput.value || '').trim();
+            const btn = document.getElementById('btnAmSend');
+            const loading = document.getElementById('amLoading');
+            const loadingText = document.getElementById('amLoadingText');
+            const resultArea = document.getElementById('amResult');
+            const linkStep = document.getElementById('amLinkStep');
+
+            if (!email) return alert('Masukkan email terlebih dahulu!');
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                return alert('Format email tidak valid!');
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="icon spin"><use href="#i-refresh"/></svg> Mengirim...`;
+            resultArea.innerHTML = '';
+            loading.classList.remove('hidden');
+            loadingText.innerText = 'Mengirim link verifikasi ke email kamu...';
+
+            try {
+                const res = await apiFetch({
+                    action: 'free_alight_send',
+                    email: email
+                });
+                const data = await res.json();
+
+                loading.classList.add('hidden');
+
+                if (data.success) {
+                    resultArea.innerHTML = `
+                        <div class="am-result-card">
+                            <div class="am-result-title">
+                                <svg class="icon" style="width:16px;height:16px;"><use href="#i-check"/></svg>
+                                Link Terkirim
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Email</span>
+                                <span class="v">${escapeHtml(email)}</span>
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Pesan</span>
+                                <span class="v">${escapeHtml(data.message || '-')}</span>
+                            </div>
+                        </div>
+                    `;
+                    linkStep.classList.remove('hidden');
+                } else {
+                    resultArea.innerHTML = `
+                        <div class="am-result-card fail">
+                            <div class="am-result-title">
+                                <svg class="icon" style="width:16px;height:16px;"><use href="#i-x"/></svg>
+                                Gagal Kirim
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Error</span>
+                                <span class="v" style="color:#ff5555;">${escapeHtml(data.error || 'Unknown error')}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                loading.classList.add('hidden');
+                resultArea.innerHTML = `
+                    <div class="am-result-card fail">
+                        <div class="am-result-title">
+                            <svg class="icon" style="width:16px;height:16px;"><use href="#i-x"/></svg>
+                            Koneksi Error
+                        </div>
+                        <div class="am-result-row">
+                            <span class="k">Pesan</span>
+                            <span class="v" style="color:#ff5555;">${escapeHtml(e.message)}</span>
+                        </div>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<svg class="icon"><use href="#i-send"/></svg> Kirim Link Verifikasi`;
+            }
+        }
+
+        async function amVerifyLink() {
+            const email = (document.getElementById('amEmail').value || '').trim();
+            const link = (document.getElementById('amMagicLink').value || '').trim();
+            const btn = document.getElementById('btnAmVerify');
+            const loading = document.getElementById('amLoading');
+            const loadingText = document.getElementById('amLoadingText');
+            const resultArea = document.getElementById('amResult');
+
+            if (!email) return alert('Email kosong!');
+            if (!link) return alert('Paste magic link terlebih dahulu!');
+            if (!link.startsWith('http')) return alert('Link harus diawali http:// atau https://');
+
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="icon spin"><use href="#i-refresh"/></svg> Memverifikasi...`;
+            loading.classList.remove('hidden');
+            loadingText.innerText = 'Memverifikasi akun...';
+
+            try {
+                const res = await apiFetch({
+                    action: 'free_alight_verify',
+                    email: email,
+                    link: link
+                });
+                const data = await res.json();
+
+                loading.classList.add('hidden');
+
+                if (data.success) {
+                    resultArea.innerHTML = `
+                        <div class="am-result-card">
+                            <div class="am-result-title">
+                                <svg class="icon" style="width:16px;height:16px;"><use href="#i-check"/></svg>
+                                Berhasil Aktivasi
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Email</span>
+                                <span class="v">${escapeHtml(data.email)}</span>
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Status</span>
+                                <span class="v">${escapeHtml(data.status)}</span>
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Expired</span>
+                                <span class="v">${escapeHtml(data.expired)}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultArea.innerHTML = `
+                        <div class="am-result-card fail">
+                            <div class="am-result-title">
+                                <svg class="icon" style="width:16px;height:16px;"><use href="#i-x"/></svg>
+                                Gagal Verifikasi
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Error</span>
+                                <span class="v" style="color:#ff5555;">${escapeHtml(data.error || 'Unknown error')}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                loading.classList.add('hidden');
+                resultArea.innerHTML = `
+                    <div class="am-result-card fail">
+                        <div class="am-result-title">
+                            <svg class="icon" style="width:16px;height:16px;"><use href="#i-x"/></svg>
+                            Koneksi Error
+                        </div>
+                        <div class="am-result-row">
+                            <span class="k">Pesan</span>
+                            <span class="v" style="color:#ff5555;">${escapeHtml(e.message)}</span>
+                        </div>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<svg class="icon"><use href="#i-check"/></svg> Verifikasi`;
+            }
+        }
+
+        async function amAutoActivate() {
+            const btn = document.getElementById('btnAmAuto');
+            const loading = document.getElementById('amLoading');
+            const loadingText = document.getElementById('amLoadingText');
+            const resultArea = document.getElementById('amResult');
+
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="icon spin"><use href="#i-refresh"/></svg> Memproses...`;
+            loading.classList.remove('hidden');
+            loadingText.innerText = 'Membuat email sementara & menunggu verifikasi...';
+            resultArea.innerHTML = '';
+
+            try {
+                const res = await apiFetch({
+                    action: 'free_alight_auto'
+                });
+                const data = await res.json();
+
+                loading.classList.add('hidden');
+
+                if (data.success) {
+                    resultArea.innerHTML = `
+                        <div class="am-result-card">
+                            <div class="am-result-title">
+                                <svg class="icon" style="width:16px;height:16px;"><use href="#i-check"/></svg>
+                                Aktivasi Berhasil
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Email Temp</span>
+                                <span class="v">${escapeHtml(data.email)}</span>
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Magic Link</span>
+                                <span class="v link">${escapeHtml(data.magicLink || '-')}</span>
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Login URL</span>
+                                <span class="v link">${escapeHtml(data.loginUrl || '-')}</span>
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Status</span>
+                                <span class="v">${escapeHtml(data.status || 'Premium')}</span>
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Expired</span>
+                                <span class="v">${escapeHtml(data.expired || '-')}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultArea.innerHTML = `
+                        <div class="am-result-card fail">
+                            <div class="am-result-title">
+                                <svg class="icon" style="width:16px;height:16px;"><use href="#i-x"/></svg>
+                                Gagal Aktivasi
+                            </div>
+                            <div class="am-result-row">
+                                <span class="k">Error</span>
+                                <span class="v" style="color:#ff5555;">${escapeHtml(data.error || 'Unknown error')}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                loading.classList.add('hidden');
+                resultArea.innerHTML = `
+                    <div class="am-result-card fail">
+                        <div class="am-result-title">
+                            <svg class="icon" style="width:16px;height:16px;"><use href="#i-x"/></svg>
+                            Koneksi Error
+                        </div>
+                        <div class="am-result-row">
+                            <span class="k">Pesan</span>
+                            <span class="v" style="color:#ff5555;">${escapeHtml(e.message)}</span>
+                        </div>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<svg class="icon"><use href="#i-refresh"/></svg> Aktivasi Otomatis`;
+            }
+        }
+async function alightFetch(payload) {
+    return await fetch('/api/free/alight', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Paradox-Token': SECRET_TOKEN
+        },
+        body: JSON.stringify(payload)
+    });
+}
+
+        function loadSkipHistory() {
+            const container = document.getElementById('skipHistoryList');
+            if (!container) return;
+
+            let history = [];
+            try {
+                history = JSON.parse(localStorage.getItem(SKIP_HISTORY_KEY) || '[]');
+                if (!Array.isArray(history)) history = [];
+            } catch { history = []; }
+
+            if (!history.length) {
+                container.innerHTML = `<div class="skip-history-empty">Belum ada riwayat.</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            history.slice().reverse().forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'skip-history-item';
+                el.innerHTML = `
+                    <div class="skip-history-header">
+                        <span class="status ${item.ok ? 'ok' : 'fail'}">
+                            ${item.ok ? '✓ SUKSES' : '✗ GAGAL'}
+                        </span>
+                        <span>${item.timestamp || '-'}</span>
+                    </div>
+                    <div class="skip-history-body">
+                        <div class="row"><span class="k">URL</span><span class="v">${escapeHtml(item.url)}</span></div>
+                        <div class="row"><span class="k">Hasil</span><span class="v ${item.ok ? 'ok' : ''}">${escapeHtml(item.result || '-')}</span></div>
+                        ${item.error ? `<div class="row"><span class="k">Error</span><span class="v">${escapeHtml(item.error)}</span></div>` : ''}
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function saveSkipHistory(entry) {
+            let history = [];
+            try {
+                history = JSON.parse(localStorage.getItem(SKIP_HISTORY_KEY) || '[]');
+                if (!Array.isArray(history)) history = [];
+            } catch { history = []; }
+
+            history.push(entry);
+            if (history.length > 50) history = history.slice(-50);
+
+            localStorage.setItem(SKIP_HISTORY_KEY, JSON.stringify(history));
+            loadSkipHistory();
+        }
+
+        function escapeHtml(s) {
+            return String(s ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        async function startSkipLink() {
+            const input = document.getElementById('skipUrlInput');
+            const btn = document.getElementById('btnSkipStart');
+            const loadingBox = document.getElementById('skipLoadingBox');
+            const loadingText = document.getElementById('skipLoadingText');
+            const resultArea = document.getElementById('skipResultArea');
+
+            const url = (input.value || '').trim();
+
+            if (!url) {
+                alert('Masukkan URL Sfl.gl terlebih dahulu!');
+                return;
+            }
+
+            if (!/^https?:\/\//i.test(url)) {
+                alert('URL harus diawali http:// atau https://');
+                return;
+            }
+
+            if (!/sfl\.gl/i.test(url)) {
+                const lanjut = confirm('URL bukan dari sfl.gl. Tetap lanjutkan?');
+                if (!lanjut) return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="icon spin"><use href="#i-refresh"/></svg> Memproses...`;
+            resultArea.innerHTML = '';
+            loadingBox.classList.remove('hidden');
+            loadingText.innerText = 'Memproses skip link...';
+
+            try {
+                const result = await processSkipLink(url, (msg) => {
+                    loadingText.innerText = msg;
+                });
+
+                loadingBox.classList.add('hidden');
+
+                if (result.ok) {
+                    resultArea.innerHTML = `
+                        <div class="skip-result-card">
+                            <div class="skip-result-title">
+                                <svg class="icon" style="width:16px;height:16px;"><use href="#i-check"/></svg>
+                                Skip Berhasil
+                            </div>
+                            <div class="skip-result-row">
+                                <span class="label">URL Asli</span>
+                                <span class="value">${escapeHtml(url)}</span>
+                            </div>
+                            <div class="skip-result-row">
+                                <span class="label">Hasil</span>
+                                <span class="value link">${escapeHtml(result.finalUrl)}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    saveSkipHistory({
+                        ok: true,
+                        url: url,
+                        result: result.finalUrl,
+                        timestamp: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
+                        error: null
+                    });
+
+                    autoDownloadResult(url, result.finalUrl);
+                } else {
+                    resultArea.innerHTML = `
+                        <div class="skip-result-card" style="border-color:#ff3333;">
+                            <div class="skip-result-title" style="color:#ff3333;">
+                                <svg class="icon" style="width:16px;height:16px;"><use href="#i-x"/></svg>
+                                Skip Gagal
+                            </div>
+                            <div class="skip-result-row">
+                                <span class="label">URL Asli</span>
+                                <span class="value">${escapeHtml(url)}</span>
+                            </div>
+                            <div class="skip-result-row">
+                                <span class="label">Error</span>
+                                <span class="value" style="color:#ff5555;">${escapeHtml(result.error || 'Unknown error')}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    saveSkipHistory({
+                        ok: false,
+                        url: url,
+                        result: null,
+                        timestamp: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
+                        error: result.error || 'Unknown error'
+                    });
+                }
+            } catch (err) {
+                loadingBox.classList.add('hidden');
+                resultArea.innerHTML = `
+                    <div class="skip-result-card" style="border-color:#ff3333;">
+                        <div class="skip-result-title" style="color:#ff3333;">
+                            <svg class="icon" style="width:16px;height:16px;"><use href="#i-x"/></svg>
+                            Error
+                        </div>
+                        <div class="skip-result-row">
+                            <span class="label">Pesan</span>
+                            <span class="value" style="color:#ff5555;">${escapeHtml(err.message || String(err))}</span>
+                        </div>
+                    </div>
+                `;
+
+                saveSkipHistory({
+                    ok: false,
+                    url: url,
+                    result: null,
+                    timestamp: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
+                    error: err.message || String(err)
+                });
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<svg class="icon"><use href="#i-link"/></svg> Start Skip`;
+            }
+        }
+
+        async function processSkipLink(url, onProgress) {
+            onProgress('Membuka halaman...');
+
+            const proxies = [
+                'https://api.allorigins.win/raw?url=',
+                'https://corsproxy.io/?',
+                'https://api.codetabs.com/v1/proxy?quest='
+            ];
+
+            let lastError = 'Gagal memproses link';
+
+            for (const proxy of proxies) {
+                try {
+                    onProgress('Mengambil halaman via proxy...');
+                    const target = proxy + encodeURIComponent(url);
+                    const res = await fetch(target, { method: 'GET' });
+
+                    if (!res.ok) {
+                        lastError = `Proxy error: HTTP ${res.status}`;
+                        continue;
+                    }
+
+                    const html = await res.text();
+                    onProgress('Menganalisis halaman...');
+
+                    const finalUrl = extractFinalUrl(html, url);
+
+                    if (finalUrl) {
+                        return { ok: true, finalUrl };
+                    }
+
+                    lastError = 'URL tujuan tidak ditemukan di halaman';
+                } catch (e) {
+                    lastError = e.message || String(e);
+                }
+            }
+
+            const fallback = tryExtractFromUrl(url);
+            if (fallback) {
+                return { ok: true, finalUrl: fallback };
+            }
+
+            return { ok: false, error: lastError };
+        }
+
+        function extractFinalUrl(html, originalUrl) {
+            const patterns = [
+                /window\.location(?:\.href)?\s*=\s*["']([^"']+)["']/i,
+                /location\.replace\(\s*["']([^"']+)["']\s*\)/i,
+                /<meta[^>]+http-equiv=["']refresh["'][^>]+content=["'][^"']*url=([^"']+)["']/i,
+                /<meta[^>]+content=["'][^"']*url=([^"']+)["'][^>]+http-equiv=["']refresh["']/i,
+                /href=["'](https?:\/\/[^"']+)["'][^>]*>\s*(?:klik|click|lanjut|continue|here|disini)/i,
+                /data-url=["'](https?:\/\/[^"']+)["']/i
+            ];
+
+            for (const pattern of patterns) {
+                const match = html.match(pattern);
+                if (match && match[1]) {
+                    const candidate = match[1].trim();
+                    if (candidate.startsWith('http') && candidate !== originalUrl && !/sfl\.gl/i.test(candidate)) {
+                        return candidate;
+                    }
+                }
+            }
+
+            const hrefMatches = html.match(/href=["'](https?:\/\/[^"']+)["']/gi) || [];
+            for (const h of hrefMatches) {
+                const m = h.match(/href=["'](https?:\/\/[^"']+)["']/i);
+                if (m && m[1] && !/sfl\.gl|google|facebook|twitter|whatsapp|instagram/i.test(m[1])) {
+                    return m[1];
+                }
+            }
+
+            return null;
+        }
+
+        function tryExtractFromUrl(url) {
+            try {
+                const u = new URL(url);
+                const params = ['url', 'u', 'target', 'dest', 'redirect', 'to', 'r', 'link'];
+                for (const p of params) {
+                    const v = u.searchParams.get(p);
+                    if (v && /^https?:\/\//i.test(v)) {
+                        return decodeURIComponent(v);
+                    }
+                }
+            } catch {}
+            return null;
+        }
+
+        function autoDownloadResult(originalUrl, finalUrl) {
+            const content =
+`========================================
+PARADOX — SKIP LINK RESULT
+========================================
+Waktu     : ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
+URL Asli  : ${originalUrl}
+Hasil     : ${finalUrl}
+Status    : SUKSES
+========================================
+`;
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const urlObj = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = urlObj;
+            a.download = `skip-result-${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(urlObj), 1000);
+        }
+
+let currentTgSession = 1;
+let tgAccounts = [];
+
+function openReportTelegram() {
+    document.getElementById('platformSelectArea').classList.add('hidden');
+    document.getElementById('telegramReportForm').classList.remove('hidden');
+    fetchTgAccounts();
+}
+
+async function fetchTgAccounts() {
+    try {
+        const res = await fetch('/api/report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'get_accounts' })
+        });
+        const data = await res.json();
+        if (data.success) {
+            tgAccounts = data.accounts;
+            renderTgAccounts();
+        }
+    } catch (e) {
+        console.error("Gagal load akun:", e);
+    }
+}
+
+function switchSession(sessId) {
+    currentTgSession = sessId;
+    document.querySelectorAll('.session-tab').forEach((el, idx) => {
+        el.classList.toggle('active', idx === (sessId - 1));
+    });
+    addTgLog(`Beralih ke Session ${sessId}`, 'sys');
+}
+
+function updateSlider(type) {
+    if (type === 'thread') {
+        const val = parseInt(document.getElementById('inputThread').value);
+        document.getElementById('valThread').innerText = val;
+        const warn = document.getElementById('warnThread');
+        if (val > 250) warn.classList.remove('hidden');
+        else warn.classList.add('hidden');
+    } else if (type === 'delay') {
+        const val = parseFloat(document.getElementById('inputDelay').value).toFixed(1);
+        document.getElementById('valDelay').innerText = val + 's';
+        const warn = document.getElementById('warnDelay');
+        if (val < 0.5) warn.classList.remove('hidden');
+        else warn.classList.add('hidden');
+    }
+}
+
+function renderTgAccounts() {
+    const list = document.getElementById('tgAccountList');
+    if (tgAccounts.length === 0) {
+        list.innerHTML = `<div style="padding:15px;text-align:center;color:#888;font-size:12px;">Belum ada akun. Tambah akun dulu.</div>`;
+        return;
+    }
+    list.innerHTML = '';
+    tgAccounts.forEach((acc, idx) => {
+        const isConnected = acc.status === 'connected';
+        const item = document.createElement('div');
+        item.className = 'account-item';
+        item.innerHTML = `
+            <div class="acc-info">
+                <div class="acc-phone">
+                    <input type="checkbox" id="acc_chk_${idx}" style="margin-right:5px;" ${isConnected ? '' : 'disabled'}>
+                    ${acc.phone}
+                </div>
+                <div class="acc-status ${isConnected ? 'on' : 'off'}">
+                    ${isConnected ? '✓ Terhubung' : '✗ Terputus'}
+                </div>
+            </div>
+            <button class="acc-remove" onclick="removeTgAccount('${acc.phone}')">Hapus</button>
+        `;
+        list.appendChild(item);
+    });
+}
+
+function addTgLog(msg, type = 'info') {
+    const term = document.getElementById('tgTerminal');
+    const time = new Date().toLocaleTimeString('id-ID');
+    const line = document.createElement('div');
+    line.className = `terminal-line ${type}`;
+    line.innerHTML = `<span class="time">[${time}]</span><span class="msg">${escapeHtml(msg)}</span>`;
+    term.appendChild(line);
+    term.scrollTop = term.scrollHeight;
+}
+
+async function startTelegramReport() {
+    const target = document.getElementById('tgTarget').value.trim();
+    const threadCount = parseInt(document.getElementById('inputThread').value);
+    const delay = parseFloat(document.getElementById('inputDelay').value);
+    const reason = document.getElementById('tgReason').value;
+
+    if (!target) return alert('Masukkan target telegram!');
+    
+    let selectedAcc = null;
+    tgAccounts.forEach((acc, idx) => {
+        const chk = document.getElementById(`acc_chk_${idx}`);
+        if (chk && chk.checked) selectedAcc = acc.phone;
+    });
+
+    if (!selectedAcc) return alert('Pilih 1 akun sender!');
+
+    addTgLog(`Memulai report ke ${target}...`, 'sys');
+    
+    try {
+        const res = await fetch('/api/report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'start_report',
+                sessionId: selectedAcc,
+                target: target,
+                reason: reason,
+                thread: threadCount,
+                delay: delay
+            })
+        });
+
+        const data = await res.json();
+        
+        if (data.success) {
+            addTgLog(`[SENDER: ${selectedAcc}] ${data.message}`, 'ok');
+        } else {
+            addTgLog(`Gagal: ${data.error}`, 'err');
+        }
+    } catch (e) {
+        addTgLog(`Error koneksi: ${e.message}`, 'err');
+    }
+}
+
+async function addTelegramAccount() {
+    const phone = document.getElementById('addAccPhone').value.trim();
+    if (!phone) return alert('Masukkan nomor!');
+    
+    addTgLog(`Mengirim OTP ke ${phone}...`, 'sys');
+    document.getElementById('btnAddAcc').disabled = true;
+
+    try {
+        const res = await fetch('/api/report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'send_otp', phone: phone })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            addTgLog(`OTP Terkirim! Cek pesan Telegram.`, 'ok');
+            document.getElementById('otpForm').classList.remove('hidden');
+        } else {
+            addTgLog(`Gagal kirim OTP: ${data.error}`, 'err');
+            document.getElementById('btnAddAcc').disabled = false;
+        }
+    } catch (e) {
+        addTgLog(`Error koneksi: ${e.message}`, 'err');
+        document.getElementById('btnAddAcc').disabled = false;
+    }
+}
+function removeTgAccount(phone) {
+    if (!confirm(`Hapus akun ${phone}?`)) return;
+    tgAccounts = tgAccounts.filter(a => a.phone !== phone);
+    renderTgAccounts();
+    addTgLog(`Akun ${phone} dihapus dari tampilan.`, 'err');
+}
+async function verifyTelegramAccount() {
+    const phone = document.getElementById('addAccPhone').value.trim();
+    const otp = document.getElementById('addAccOtp').value.trim();
+    const pass2fa = document.getElementById('addAcc2fa').value.trim();
+    
+    if (!otp) return alert('Masukkan OTP!');
+    addTgLog(`Memverifikasi akun...`, 'sys');
+    
+    try {
+        const res = await fetch('/api/report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'verify_otp', phone, otp, password: pass2fa })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            addTgLog(data.message, 'ok');
+            document.getElementById('addAccPhone').value = '';
+            document.getElementById('addAccOtp').value = '';
+            document.getElementById('addAcc2fa').value = '';
+            document.getElementById('otpForm').classList.add('hidden');
+            document.getElementById('btnAddAcc').disabled = false;
+            fetchTgAccounts();
+        } else {
+            addTgLog(`Gagal verifikasi: ${data.error}`, 'err');
+        }
+    } catch (e) {
+        addTgLog(`Error koneksi: ${e.message}`, 'err');
+    }
+}
+        let subdoDomains = [];
+        let subdoSelectedDomain = null;
+        let subdoDomainsLoaded = false;
+        let subdoDomainsLoading = false;
+
+        async function loadSubdoDomains(force = false) {
+            if (subdoDomainsLoading) return;
+            if (subdoDomainsLoaded && !force) return;
+            subdoDomainsLoading = true;
+
+            const list = document.getElementById('subdoDomainList');
+            if (!list) return;
+
+            list.innerHTML = `<div class="subdo-picker-loading"><div class="mini-spin"></div>Memuat domain...</div>`;
+
+            try {
+                const res = await apiFetch({ action: 'list_domains' });
+                const data = await res.json();
+
+                if (data.success && Array.isArray(data.domains)) {
+                    subdoDomains = data.domains;
+                    subdoDomainsLoaded = true;
+                    renderSubdoDomains();
+                } else {
+                    list.innerHTML = `<div class="subdo-picker-loading">Gagal memuat domain.</div>`;
+                }
+            } catch (e) {
+                list.innerHTML = `<div class="subdo-picker-loading">Gagal terhubung ke server.</div>`;
+            } finally {
+                subdoDomainsLoading = false;
+            }
+        }
+
+        function renderSubdoDomains() {
+            const list = document.getElementById('subdoDomainList');
+            if (!list) return;
+            list.innerHTML = '';
+
+            if (!subdoDomains.length) {
+                list.innerHTML = `<div class="subdo-picker-loading">Tidak ada domain tersedia.</div>`;
+                return;
+            }
+
+            subdoDomains.forEach((d) => {
+                const item = document.createElement('div');
+                item.className = 'subdo-domain-item';
+                if (subdoSelectedDomain === d.domain) item.classList.add('selected');
+                if (!d.alive) item.classList.add('disabled');
+
+                const statusIcon = d.alive ? '#i-check' : '#i-x';
+                const statusClass = d.alive ? 'alive' : 'dead';
+                const statusText = d.alive ? 'Aktif' : 'Mati';
+
+                item.innerHTML = `
+                    <span class="domain-name">${d.domain}</span>
+                    <span class="subdo-status ${statusClass}">
+                        <svg><use href="${statusIcon}"/></svg>
+                        ${statusText}
+                    </span>
+                `;
+
+                if (d.alive) {
+                    item.addEventListener('click', () => {
+                        subdoSelectedDomain = d.domain;
+                        renderSubdoDomains();
+                    });
+                }
+                list.appendChild(item);
+            });
+        }
+
+        function toggleSubdoDomainList() {
+            const list = document.getElementById('subdoDomainList');
+            const header = document.getElementById('subdoPickerHeader');
+            if (!list || !header) return;
+            const isOpening = list.classList.contains('hidden');
+            list.classList.toggle('hidden');
+            header.classList.toggle('open');
+            if (isOpening && !subdoDomainsLoaded) loadSubdoDomains();
+        }
+
+        async function createSubdomain() {
+            const ip = document.getElementById('subdoIp').value.trim();
+            const panelHostRaw = document.getElementById('subdoPanelHost').value.trim().toLowerCase();
+            const nodeHostRaw = document.getElementById('subdoNodeHost').value.trim().toLowerCase();
+
+            if (!ip) return alert('Isi IP VPS terlebih dahulu!');
+            if (!panelHostRaw) return alert('Isi Nama Domain Panel terlebih dahulu!');
+            if (!subdoSelectedDomain) return alert('Pilih domain terlebih dahulu!');
+            if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) return alert('Format IP tidak valid!');
+
+            const hostRegex = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/;
+            if (!hostRegex.test(panelHostRaw)) return alert('Nama Domain Panel tidak valid!');
+            const nodeHost = nodeHostRaw || `node.${panelHostRaw}`;
+            if (!hostRegex.test(nodeHost)) return alert('Nama Domain Node tidak valid!');
+
+            const overlay = document.getElementById('subdoLoadingOverlay');
+            const resultArea = document.getElementById('subdoResult');
+            overlay.classList.remove('hidden');
+            resultArea.innerHTML = '';
+
+            try {
+                const res = await apiFetch({
+                    action: 'create_subdomain',
+                    ip: ip,
+                    panelHost: panelHostRaw,
+                    nodeHost: nodeHost,
+                    domain: subdoSelectedDomain
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    resultArea.innerHTML = `
+                        <div class="subdo-result-card">
+                            <div class="subdo-result-title">
+                                <svg class="icon" style="width:16px;height:16px;"><use href="#i-check"/></svg>
+                                Domain Berhasil Dibuat
+                            </div>
+                            <div class="subdo-result-row"><span>Panel</span><span>${data.panelDomain}</span></div>
+                            <div class="subdo-result-row"><span>Node</span><span>${data.nodeDomain}</span></div>
+                            <div class="subdo-result-row"><span>IP</span><span>${data.ip}</span></div>
+                            <div class="subdo-result-row"><span>Parent</span><span>${data.domain}</span></div>
+                        </div>
+                    `;
+                    document.getElementById('subdoIp').value = '';
+                    document.getElementById('subdoPanelHost').value = '';
+                    document.getElementById('subdoNodeHost').value = '';
+                    loadSubdoHistory();
+                } else {
+                    resultArea.innerHTML = `
+                        <div class="subdo-result-card" style="border-color:#ff3333;">
+                            <div class="subdo-result-title" style="color:#ff3333;">
+                                <svg class="icon" style="width:16px;height:16px;"><use href="#i-x"/></svg>
+                                Gagal Membuat Domain
+                            </div>
+                            <div style="color:#ccc;font-size:13px;line-height:1.5;">${data.error || 'Terjadi kesalahan tidak diketahui.'}</div>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                resultArea.innerHTML = `
+                    <div class="subdo-result-card" style="border-color:#ff3333;">
+                        <div class="subdo-result-title" style="color:#ff3333;">
+                            <svg class="icon" style="width:16px;height:16px;"><use href="#i-x"/></svg>
+                            Koneksi Error
+                        </div>
+                        <div style="color:#ccc;font-size:13px;">Gagal menghubungi server API.</div>
+                    </div>
+                `;
+            } finally {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        async function loadSubdoHistory() {
+            const container = document.getElementById('subdoHistoryList');
+            if (!container) return;
+            container.innerHTML = `<div class="subdo-history-empty">Memuat history...</div>`;
+
+            try {
+                const res = await apiFetch({ action: 'subdomain_history' });
+                const data = await res.json();
+
+                if (!data.success || !Array.isArray(data.history) || !data.history.length) {
+                    container.innerHTML = `<div class="subdo-history-empty">Belum ada history pembuatan domain.</div>`;
+                    return;
+                }
+
+                let html = `
+                    <div class="subdo-history-table-wrap">
+                        <table class="subdo-history-table">
+                            <thead>
+                                <tr><th>Panel</th><th>Node</th><th>Domain</th><th>Tanggal</th></tr>
+                            </thead>
+                            <tbody>
+                `;
+                data.history.slice().reverse().forEach((h) => {
+                    html += `
+                        <tr>
+                            <td class="panel-cell">${h.panelDomain || '-'}</td>
+                            <td class="node-cell">${h.nodeDomain || '-'}</td>
+                            <td>${h.domain || '-'}</td>
+                            <td class="date-cell">${h.createdAt || '-'}</td>
+                        </tr>
+                    `;
+                });
+                html += `</tbody></table></div>`;
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = `<div class="subdo-history-empty">Gagal memuat history.</div>`;
+            }
+        }
+
+        function openSocials() {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById('socialsView').classList.remove('hidden');
+        }
+        function closeSocials() {
+            document.getElementById('socialsView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.remove('hidden');
+        }
+        function openOfficialLink(url, platform) {
+            const loading = document.getElementById('socialLoading');
+            const platformText = document.getElementById('socialLoadingPlatform');
+            platformText.innerText = `Membuka akun resmi ${platform}...`;
+            loading.classList.remove('hidden');
+            setTimeout(() => { window.location.href = url; }, 1000);
+        }
+
+        function setToggle(type) {
+            const container = document.getElementById('toggleContainer');
+            const btnInstall = document.getElementById('btnInstall');
+            const btnUninstall = document.getElementById('btnUninstall');
+            const formInstall = document.getElementById('formInstall');
+            const formUninstall = document.getElementById('formUninstall');
+            const logBox = document.getElementById('installLog');
+            logBox.style.display = 'none';
+            document.getElementById('logContent').innerHTML = '';
+
+            if (type === 'uninstall') {
+                container.classList.add('right-active');
+                btnInstall.classList.remove('active');
+                btnUninstall.classList.add('active');
+                formInstall.classList.add('hidden');
+                formUninstall.classList.remove('hidden');
+            } else {
+                container.classList.remove('right-active');
+                btnInstall.classList.add('active');
+                btnUninstall.classList.remove('active');
+                formInstall.classList.remove('hidden');
+                formUninstall.classList.add('hidden');
+            }
+        }
+
+        async function startInstall() {
+            const host = document.getElementById('vpsHost').value.trim();
+            const pass = document.getElementById('vpsPass').value.trim();
+            const logBox = document.getElementById('installLog');
+            const logContent = document.getElementById('logContent');
+            const btn = document.getElementById('btnInstallSubmit');
+
+            if (!host || !pass) return alert("Isi IP dan Password VPS!");
+
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="icon"><use href="#i-shield"/></svg>Memproses...`;
+            logBox.style.display = 'block';
+            logContent.innerHTML = `<div class="log-info">Menghubungkan ke ${host}...</div>`;
+
+            try {
+                const res = await apiFetch({ action: 'install_protect', host, password: pass });
+                const data = await res.json();
+
+                if (data.success) {
+                    logContent.innerHTML = `<div class="log-success"><svg class="icon" style="width:14px;height:14px;"><use href="#i-check"/></svg>${data.message}</div><br>`;
+                    if (data.detail) {
+                        logContent.innerHTML += `<div style="color:#fff;margin-bottom:5px;">Berhasil: ${data.detail.success}/${data.detail.total}</div>`;
+                        logContent.innerHTML += `<div style="color:#ff5555;margin-bottom:10px;">Gagal: ${data.detail.failed}/${data.detail.total}</div>`;
+                        data.detail.details.forEach(item => {
+                            const color = item.ok ? 'log-success' : 'log-error';
+                            const icon = item.ok
+                                ? '<svg class="icon" style="width:12px;height:12px;"><use href="#i-check"/></svg>'
+                                : '<svg class="icon" style="width:12px;height:12px;"><use href="#i-x"/></svg>';
+                            logContent.innerHTML += `<div class="${color}">${icon}${item.name} ${item.error ? '(' + item.error + ')' : ''}</div>`;
+                        });
+                    }
+                } else {
+                    logContent.innerHTML = `<div class="log-error"><svg class="icon" style="width:14px;height:14px;"><use href="#i-x"/></svg>Gagal: ${data.error}</div>`;
+                }
+            } catch (e) {
+                logContent.innerHTML = `<div class="log-error"><svg class="icon" style="width:14px;height:14px;"><use href="#i-x"/></svg>Koneksi ke server API terputus.</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<svg class="icon"><use href="#i-shield"/></svg>Mulai Install`;
+            }
+        }
+
+        async function apiFetch(payload) {
+            return await fetch(API, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Paradox-Token': SECRET_TOKEN
+                },
+                body: JSON.stringify(payload)
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateSubscribeUI();
+            const remembered = localStorage.getItem(REMEMBER_KEY);
+            if (remembered === 'true') {
+                document.getElementById("authView").classList.add("hidden");
+                document.getElementById("loadingView").classList.remove("hidden");
+                runLoading();
+            }
+        });
+
+        function isSubscribed() { return localStorage.getItem(SUB_KEY) === 'true'; }
+
+        function updateSubscribeUI() {
+            const box = document.getElementById("ytSubBox");
+            const text = document.getElementById("ytSubText");
+            const input = document.getElementById("passwordInput");
+            const btn = document.getElementById("loginBtn");
+
+            if (isSubscribed()) {
+                box.classList.remove("not-subbed");
+                box.classList.add("subbed");
+                text.innerText = "Terimakasih Telah Subscribe Channel Kami";
+                input.disabled = false;
+                btn.disabled = false;
+            } else {
+                box.classList.remove("subbed");
+                box.classList.add("not-subbed");
+                text.innerText = "Silahkan Subscribe Channel Kami Terlebih Dahulu";
+                input.disabled = true;
+                btn.disabled = true;
+            }
+        }
+
+        function checkYoutubeSub() {
+            if (isSubscribed()) { updateSubscribeUI(); return; }
+            window.open(YOUTUBE_URL, '_blank');
+            setTimeout(() => {
+                localStorage.setItem(SUB_KEY, 'true');
+                updateSubscribeUI();
+            }, 2000);
+        }
+
+        async function checkPassword() {
+            if (!isSubscribed()) return alert("Silahkan Subscribe Channel Kami Terlebih Dahulu");
+            const input = document.getElementById("passwordInput").value.trim();
+            const errorDiv = document.getElementById("authError");
+            if (!input) return;
+
+            try {
+                const res = await apiFetch({ action: 'auth', password: input });
+                const data = await res.json();
+
+                if (data.success) {
+                    const remember = document.getElementById("rememberDevice").checked;
+                    if (remember) localStorage.setItem(REMEMBER_KEY, 'true');
+                    else localStorage.removeItem(REMEMBER_KEY);
+                    document.getElementById("authView").classList.add("hidden");
+                    document.getElementById("loadingView").classList.remove("hidden");
+                    runLoading();
+                } else if (data.blocked) {
+                    document.getElementById("authView").classList.add("hidden");
+                    document.getElementById("blockedView").classList.remove("hidden");
+                } else {
+                    attempts++;
+                    errorDiv.classList.remove("hidden");
+                    errorDiv.innerText = `Password salah! Sisa: ${3 - attempts}`;
+                    if (attempts >= 3) {
+                        await apiFetch({ action: 'block_ip' });
+                        document.getElementById("authView").classList.add("hidden");
+                        document.getElementById("blockedView").classList.remove("hidden");
+                    }
+                }
+            } catch (e) {
+                errorDiv.classList.remove("hidden");
+                errorDiv.innerText = "Gagal terhubung ke server.";
+            }
+        }
+
+        function runLoading() {
+            let progress = 0;
+            const fill = document.getElementById("progressFill");
+            const text = document.getElementById("percentText");
+            const interval = setInterval(() => {
+                progress += Math.random() * 5;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById("loadingView").classList.add("hidden");
+                        document.getElementById("dashboardView").classList.remove("hidden");
+                        try {
+                            if (typeof loadSenders === 'function') loadSenders();
+                        } catch (e) { console.warn("loadSenders skip:", e); }
+                    }, 500);
+                }
+                fill.style.width = progress + "%";
+                text.innerText = Math.floor(progress) + "%";
+            }, 50);
+        }
+
+        async function requestOTP() {
+            const inputs = document.querySelectorAll('.phone');
+            const resultsArea = document.getElementById("resultsArea");
+            const btn = document.getElementById("btnReq");
+            const statsBox = document.getElementById("statsBox");
+            resultsArea.innerHTML = "";
+            statsBox.classList.add("hidden");
+
+            let numbers = [];
+            inputs.forEach(input => {
+                if (input.value.trim() !== "") numbers.push(input.value.trim());
+            });
+
+            if (numbers.length === 0) return alert("Masukkan minimal 1 nomor HP!");
+
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="icon"><use href="#i-send"/></svg>Memproses...`;
+
+            let totalStats = { success: 0, ratelimit: 0, bad: 0, error: 0 };
+
+            for (let i = 0; i < numbers.length; i++) {
+                const num = numbers[i];
+                const cardId = `res-${i}`;
+                resultsArea.innerHTML += `
+                    <div class="result-card" id="${cardId}">
+                        <div class="number">${num}</div>
+                        <div class="status" style="color:#aaa;">Memproses...</div>
+                    </div>
+                `;
+
+                try {
+                    const res = await apiFetch({ action: 'request_otp', phone: num });
+                    const data = await res.json();
+                    const statusEl = document.querySelector(`#${cardId} .status`);
+
+                    if (data.success || data.stats) {
+                        const st = data.stats || {};
+                        totalStats.success += st.success || 0;
+                        totalStats.ratelimit += (st.ratelimit || 0) + (st.bypass || 0);
+                        totalStats.bad += st.bad || 0;
+                        totalStats.error += (st.error || 0) + (st.timeout || 0);
+
+                        statusEl.style.color = "#00ff88";
+                        statusEl.innerHTML = `<svg class="icon" style="width:14px;height:14px;"><use href="#i-check"/></svg>${data.message || "Selesai"}`;
+                    } else {
+                        statusEl.style.color = "#ff3333";
+                        statusEl.innerHTML = `<svg class="icon" style="width:14px;height:14px;"><use href="#i-x"/></svg>Gagal`;
+                        totalStats.error++;
+                    }
+                } catch (e) {
+                    totalStats.error++;
+                    const statusEl = document.querySelector(`#${cardId} .status`);
+                    statusEl.style.color = "#ff3333";
+                    statusEl.innerHTML = `<svg class="icon" style="width:14px;height:14px;"><use href="#i-x"/></svg>Timeout / Error`;
+                }
+            }
+
+            if (totalStats.success + totalStats.ratelimit + totalStats.bad + totalStats.error > 0) {
+                statsBox.classList.remove("hidden");
+                document.getElementById("statSuccess").innerText = totalStats.success;
+                document.getElementById("statRate").innerText = totalStats.ratelimit;
+                document.getElementById("statBad").innerText = totalStats.bad;
+                document.getElementById("statError").innerText = totalStats.error;
+
+                document.querySelector(".stat-success").classList.toggle("hidden", totalStats.success === 0);
+                document.querySelector(".stat-ratelimit").classList.toggle("hidden", totalStats.ratelimit === 0);
+                document.querySelector(".stat-bad").classList.toggle("hidden", totalStats.bad === 0);
+                document.querySelector(".stat-error").classList.toggle("hidden", totalStats.error === 0);
+
+                const visibleCount = [totalStats.success, totalStats.ratelimit, totalStats.bad, totalStats.error].filter(x => x > 0).length;
+                statsBox.style.gridTemplateColumns = `repeat(${visibleCount}, 1fr)`;
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = `<svg class="icon"><use href="#i-send"/></svg>Request OTP`;
+        }
+
+        const audio = document.getElementById("audioPlayer");
+        let currentSongIndex = -1;
+
+        function openMusic() {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById("musicView").classList.remove("hidden");
+            renderSongList();
+        }
+        function closeMusic() {
+            document.getElementById("musicView").classList.add("hidden");
+            document.getElementById("dashboardView").classList.remove("hidden");
+        }
+        function svgPlay() { return `<svg class="icon"><use href="#i-play"/></svg>`; }
+        function svgPause() { return `<svg class="icon"><use href="#i-pause"/></svg>`; }
+
+        function renderSongList() {
+            const list = document.getElementById("songList");
+            list.innerHTML = "";
+            SONGS.forEach((song, idx) => {
+                const item = document.createElement("div");
+                item.className = "song-item";
+                item.id = `song-item-${idx}`;
+                const isPlaying = currentSongIndex === idx && !audio.paused;
+
+                item.innerHTML = `
+                    <div class="song-info">
+                        <div class="song-title">${song.title}</div>
+                        <div class="song-artist">${song.artist}</div>
+                    </div>
+                    <button class="play-btn" id="play-btn-${idx}" onclick="event.stopPropagation();toggleSong(${idx})">
+                        ${isPlaying ? svgPause() : svgPlay()}
+                    </button>
+                `;
+                item.addEventListener("click", (e) => {
+                    if (e.target.closest(".play-btn")) return;
+                    toggleSong(idx);
+                });
+                if (isPlaying) item.classList.add("playing");
+                list.appendChild(item);
+            });
+        }
+
+        function toggleSong(idx) {
+            if (currentSongIndex === idx) {
+                if (audio.paused) audio.play();
+                else audio.pause();
+            } else {
+                currentSongIndex = idx;
+                audio.src = SONGS[idx].src;
+                audio.play().catch(e => alert("Gagal memutar lagu: " + e.message));
+            }
+            updatePlayButtons();
+            updateNowPlaying();
+        }
+
+        function updatePlayButtons() {
+            SONGS.forEach((_, idx) => {
+                const btn = document.getElementById(`play-btn-${idx}`);
+                const item = document.getElementById(`song-item-${idx}`);
+                if (!btn) return;
+                const isCurrent = currentSongIndex === idx;
+                const isPlaying = isCurrent && !audio.paused;
+                btn.innerHTML = isPlaying ? svgPause() : svgPlay();
+                item.classList.toggle("playing", isCurrent && isPlaying);
+            });
+        }
+
+        function updateNowPlaying() {
+            const bar = document.getElementById("nowPlaying");
+            if (currentSongIndex === -1) { bar.classList.add("hidden"); return; }
+            document.getElementById("nowTitle").innerText = SONGS[currentSongIndex].title;
+            document.getElementById("nowArtist").innerText = SONGS[currentSongIndex].artist;
+            document.getElementById("nowPlayBtn").innerHTML = audio.paused ? svgPlay() : svgPause();
+            bar.classList.remove("hidden");
+        }
+
+        function togglePlayFromBar() {
+            if (currentSongIndex === -1) return;
+            if (audio.paused) audio.play();
+            else audio.pause();
+        }
+
+        audio.addEventListener("play", () => { updatePlayButtons(); updateNowPlaying(); });
+        audio.addEventListener("pause", () => { updatePlayButtons(); updateNowPlaying(); });
+        audio.addEventListener("ended", () => {
+            if (currentSongIndex < SONGS.length - 1) toggleSong(currentSongIndex + 1);
+            else { audio.pause(); updatePlayButtons(); updateNowPlaying(); }
+        });
+    </script>
+
+    <script src="bug-client.js"></script>
 </body>
 </html>
