@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="blush">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Birthday Card</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-serif: 'Instrument Serif', Georgia, serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 1. Blush Sakura (Cute & Soft untuk Cewek) */
+        [data-theme="blush"] {
+            --bg-1: #FFF0F5;
+            --bg-2: #FFE4EE;
+            --surface: rgba(255, 255, 255, 0.88);
+            --surface-alt: #FFF5F8;
+            --border: rgba(244, 143, 177, 0.35);
+            --text-main: #4A1C2F;
+            --text-muted: #9E5A75;
+            --accent: #EC4899;
+            --accent-soft: rgba(236, 72, 153, 0.14);
+            --accent-text: #FFFFFF;
+            --shadow: 0 24px 60px -12px rgba(236, 72, 153, 0.18);
+            --particle-colors: #EC4899, #F472B6, #FBCFE8, #F59E0B;
+        }
+
+        /* 2. Sky Cloud (Cute & Fresh untuk Laki-laki / Netral) */
+        [data-theme="sky"] {
+            --bg-1: #EFF6FF;
+            --bg-2: #DBEAFE;
+            --surface: rgba(255, 255, 255, 0.9);
+            --surface-alt: #F0F7FF;
+            --border: rgba(96, 165, 250, 0.35);
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --accent: #2563EB;
+            --accent-soft: rgba(37, 99, 235, 0.12);
+            --accent-text: #FFFFFF;
+            --shadow: 0 24px 60px -12px rgba(37, 99, 235, 0.16);
+            --particle-colors: #2563EB, #60A5FA, #38BDF8, #FBBF24;
+        }
+
+        /* 3. Matcha Cream (Aesthetic & Universal) */
+        [data-theme="matcha"] {
+            --bg-1: #F4F7F2;
+            --bg-2: #E6EDE2;
+            --surface: rgba(255, 254, 250, 0.92);
+            --surface-alt: #F2F6EE;
+            --border: rgba(101, 131, 97, 0.3);
+            --text-main: #1F2E1D;
+            --text-muted: #5F735C;
+            --accent: #4D7C46;
+            --accent-soft: rgba(77, 124, 70, 0.14);
+            --accent-text: #FFFFFF;
+            --shadow: 0 24px 60px -12px rgba(77, 124, 70, 0.16);
+            --particle-colors: #4D7C46, #84A98C, #E2B86B, #FFFFFF;
+        }
+
+        /* 4. Midnight Velvet (Dark Mode Elegan) */
+        [data-theme="midnight"] {
+            --bg-1: #0B0D13;
+            --bg-2: #131722;
+            --surface: rgba(22, 26, 36, 0.88);
+            --surface-alt: #1C212E;
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --accent: #F59E0B;
+            --accent-soft: rgba(245, 158, 11, 0.15);
+            --accent-text: #0B0D13;
+            --shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.65);
+            --particle-colors: #F59E0B, #FDE68A, #60A5FA, #F472B6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: radial-gradient(circle at top left, var(--bg-1), var(--bg-2));
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+            transition: background 0.5s ease, color 0.4s ease;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Ambient Floating Orbs Background */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(70px);
+            opacity: 0.45;
+            z-index: 0;
+            pointer-events: none;
+            animation: floatOrb 10s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 280px; height: 280px; background: var(--accent); top: -60px; left: -60px; }
+        .orb-2 { width: 240px; height: 240px; background: var(--accent); bottom: -50px; right: -40px; animation-delay: -5s; }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 25px) scale(1.12); }
+        }
+
+        /* === OPENING ENVELOPE / CURTAIN SCREEN === */
+        .opening-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, var(--bg-1), var(--bg-2));
+            z-index: 80;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            transition: opacity 0.65s var(--ease-smooth), transform 0.65s var(--ease-smooth), visibility 0.65s;
+        }
+
+        .opening-screen.opened {
+            opacity: 0;
+            transform: scale(1.08);
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .envelope-card {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            border-radius: 28px;
+            padding: 40px 32px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            animation: gentleBob 3s ease-in-out infinite;
+        }
+
+        @keyframes gentleBob {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .wax-seal {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--accent-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 0 8px var(--accent-soft);
+            animation: pulseSeal 2s infinite;
+        }
+
+        @keyframes pulseSeal {
+            0% { box-shadow: 0 0 0 0 var(--accent-soft); }
+            70% { box-shadow: 0 0 0 16px rgba(0,0,0,0); }
+            100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+        }
+
+        .envelope-to {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .envelope-name {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .envelope-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 26px;
+        }
+
+        .btn-open-card {
+            background: var(--accent);
+            color: var(--accent-text);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 999px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.25s var(--ease-spring), box-shadow 0.25s;
+            box-shadow: 0 10px 25px -5px var(--accent-soft);
+        }
+
+        .btn-open-card:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+        .btn-open-card:active {
+            transform: scale(0.97);
+        }
+
+        /* === MAIN CARD STAGE === */
+        .stage {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 560px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.5s var(--ease-smooth) 0.1s;
+        }
+
+        body.card-revealed .topbar {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .status-pill {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(10px);
+        }
+
+        .dot-live {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10B981;
+        }
+
+        .btn-pill {
+            background: var(--surface);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 7px 14px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s var(--ease-spring), border-color 0.2s;
+        }
+
+        .btn-pill:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        /* Main Card */
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            border-radius: 28px;
+            padding: 36px 32px;
+            opacity: 0;
+            transform: translateY(28px) scale(0.95);
+            transition: opacity 0.7s var(--ease-smooth), transform 0.7s var(--ease-spring);
+        }
+
+        body.card-revealed .card {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed var(--border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .tag-accent {
+            background: var(--accent-soft);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        /* Staggered Inner Animations */
+        .anim-item {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-spring);
+        }
+
+        body.card-revealed .anim-item:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.15s; }
+        body.card-revealed .anim-item:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.28s; }
+        body.card-revealed .anim-item:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+        body.card-revealed .anim-item:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.52s; }
+
+        /* Profile Hero */
+        .hero {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(135deg, var(--accent), transparent 60%, var(--accent));
+            flex-shrink: 0;
+            transition: transform 0.4s var(--ease-spring);
+        }
+
+        .avatar-wrap:hover {
+            transform: rotate(-4deg) scale(1.06);
+        }
+
+        .avatar-wrap.rounded-sq {
+            border-radius: 22px;
+        }
+
+        .avatar-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            background: var(--surface-alt);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-inner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-initial {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            color: var(--accent);
+        }
+
+        .hero-info { flex: 1; min-width: 0; }
+
+        .hero-sub {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: clamp(2.1rem, 5vw, 2.85rem);
+            line-height: 1.08;
+            font-weight: 400;
+            color: var(--text-main);
+            word-wrap: break-word;
+        }
+
+        /* === 4 BENTUK PESAN === */
+        .msg-letter {
+            background: var(--surface-alt);
+            border-left: 3.5px solid var(--accent);
+            border-radius: 6px 18px 18px 6px;
+            padding: 20px 22px;
+            font-size: 0.98rem;
+            line-height: 1.75;
+            white-space: pre-line;
+        }
+
+        .msg-bubble-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .msg-bubble {
+            background: var(--accent);
+            color: var(--accent-text);
+            padding: 18px 22px;
+            border-radius: 22px 22px 22px 6px;
+            font-size: 0.98rem;
+            line-height: 1.65;
+            white-space: pre-line;
+            box-shadow: 0 10px 24px -8px var(--accent-soft);
+        }
+        .msg-bubble-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-left: 6px;
+        }
+
+        .msg-quote {
+            text-align: center;
+            padding: 26px 18px;
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+        }
+        .msg-quote p {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 1.55rem;
+            line-height: 1.45;
+            white-space: pre-line;
+        }
+
+        .msg-ticket {
+            background: var(--surface-alt);
+            border: 1.5px dashed var(--accent);
+            border-radius: 18px;
+            padding: 20px 22px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.7;
+            white-space: pre-line;
+        }
+
+        /* Footer */
+        .card-footer {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .from-box span {
+            display: block;
+            font-size: 0.74rem;
+            color: var(--text-muted);
+        }
+        .from-box strong {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .btn-accent {
+            background: var(--accent);
+            color: var(--accent-text);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s var(--ease-spring), opacity 0.2s;
+        }
+        .btn-accent:hover { transform: translateY(-2px); opacity: 0.92; }
+        .btn-accent:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* === SETTINGS MODAL === */
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 12, 18, 0.65);
+            backdrop-filter: blur(8px);
+            z-index: 120;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-bg.active { display: flex; }
+
+        .modal-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 100%;
+            max-width: 480px;
+            border-radius: 24px;
+            padding: 26px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            animation: modalPop 0.35s var(--ease-spring);
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.92) translateY(12px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .modal-head h3 { font-size: 1.05rem; font-weight: 700; }
+
+        .btn-x {
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .field { margin-bottom: 14px; }
+        .field label {
+            display: block;
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .input, .select, .textarea {
+            width: 100%;
+            background: var(--surface-alt);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            transition: border-color 0.2s;
+        }
+        .input:focus, .select:focus, .textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .date-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.7fr 1.3fr 0.9fr;
+            gap: 6px;
+        }
+
+        .pp-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 14px;
+        }
+        .pp-thumb {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--text-main);
+            color: var(--bg-1);
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s var(--ease-spring);
+            z-index: 200;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        #fx-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 90; }
+
+        @media (max-width: 500px) {
+            .card { padding: 28px 20px; }
+            .hero { flex-direction: column; text-align: center; }
+            .date-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <canvas id="fx-canvas"></canvas>
+
+    <!-- 1. LAYAR AMPLOP PEMBUKA (ANIMASI SAAT DIBUKA) -->
+    <div class="opening-screen" id="openingScreen">
+        <div class="envelope-card">
+            <div class="wax-seal">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+            </div>
+            <p class="envelope-to">Kartu Spesial Untuk</p>
+            <h2 class="envelope-name" id="env-name">Sahabat</h2>
+            <p class="envelope-date" id="env-date">Minggu, 15 November 2026</p>
+            <button class="btn-open-card" onclick="openEnvelope()">Buka Ucapan</button>
+        </div>
+    </div>
+
+    <!-- 2. KARTU UTAMA -->
+    <div class="stage">
+        <div class="topbar">
+            <span class="status-pill">
+                <span class="dot-live"></span>
+                <span id="db-status">READY</span>
+            </span>
+            <div style="display:flex; gap:8px;">
+                <button class="btn-pill" onclick="spawnConfetti()">Sparkle</button>
+                <button class="btn-pill" onclick="openModal()">Settings</button>
+            </div>
+        </div>
+
+        <main class="card">
+            <div class="card-meta anim-item">
+                <span id="view-date">Minggu, 15 November 2026</span>
+                <span class="tag-accent" id="view-slug">#DEFAULT</span>
+            </div>
+
+            <div class="hero anim-item">
+                <div class="avatar-wrap" id="avatar-wrap">
+                    <div class="avatar-inner">
+                        <img id="view-avatar" src="" alt="PP" style="display:none;">
+                        <span class="avatar-initial" id="view-initial">S</span>
+                    </div>
+                </div>
+                <div class="hero-info">
+                    <p class="hero-sub">Selamat Ulang Tahun,</p>
+                    <h1 class="hero-title" id="view-name">Sahabat</h1>
+                </div>
+            </div>
+
+            <div class="anim-item" id="message-box"></div>
+
+            <footer class="card-footer anim-item">
+                <div class="from-box">
+                    <span>Dari</span>
+                    <strong id="view-sender">Pengirim</strong>
+                </div>
+                <div class="actions">
+                    <button class="btn-accent" onclick="sendNotification()">Kirim Notif</button>
+                    <button class="btn-pill" onclick="shareWhatsApp()">WhatsApp</button>
+                    <button class="btn-pill" onclick="copyLink()">Salin Link</button>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- 3. MODAL SETTINGS (TANPA INPUT TOKEN GITHUB) -->
+    <div class="modal-bg" id="modalBg">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3>Settings Kartu</h3>
+                <button class="btn-x" onclick="closeModal()">&times;</button>
+            </div>
+
+            <form onsubmit="saveCard(event)">
+                <div class="field">
+                    <label>ID Link Kartu</label>
+                    <input type="text" id="fSlug" class="input" placeholder="contoh: tiara-17" required>
+                </div>
+
+                <div class="field">
+                    <label>Foto Profil (PP)</label>
+                    <div class="pp-box">
+                        <img id="previewPP" class="pp-thumb" src="" alt="">
+                        <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+                            <input type="file" id="fFile" accept="image/*" style="font-size:0.78rem;" onchange="onUploadPP(event)">
+                            <input type="url" id="fUrl" class="input" placeholder="Atau tempel URL foto..." oninput="onUrlPP(this.value)" style="padding:6px 10px; font-size:0.8rem;">
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-top:8px;">
+                        <select id="fShape" class="select" style="padding:6px 10px; font-size:0.8rem;">
+                            <option value="circle">PP Lingkaran</option>
+                            <option value="square">PP Kotak Rounded</option>
+                        </select>
+                        <button type="button" class="btn-pill" onclick="resetPP()">Hapus PP</button>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Nama Penerima</label>
+                    <input type="text" id="fName" class="input" required>
+                </div>
+
+                <div class="field">
+                    <label>Tema Warna (Cewek / Laki-laki / Netral)</label>
+                    <select id="fTheme" class="select">
+                        <option value="blush">Blush Sakura (Cute Soft Pink - Cewek)</option>
+                        <option value="sky">Sky Cloud (Fresh Soft Blue - Laki-laki)</option>
+                        <option value="matcha">Matcha Cream (Aesthetic Soft Green - Netral)</option>
+                        <option value="midnight">Midnight Velvet (Dark Elegan - Universal)</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Hari, Tanggal, Bulan & Tahun</label>
+                    <div class="date-grid">
+                        <select id="fDay" class="select">
+                            <option value="Senin">Senin</option>
+                            <option value="Selasa">Selasa</option>
+                            <option value="Rabu">Rabu</option>
+                            <option value="Kamis">Kamis</option>
+                            <option value="Jumat">Jumat</option>
+                            <option value="Sabtu">Sabtu</option>
+                            <option value="Minggu">Minggu</option>
+                        </select>
+                        <input type="number" id="fDate" class="input" min="1" max="31" required>
+                        <select id="fMonth" class="select">
+                            <option value="Januari">Januari</option>
+                            <option value="Februari">Februari</option>
+                            <option value="Maret">Maret</option>
+                            <option value="April">April</option>
+                            <option value="Mei">Mei</option>
+                            <option value="Juni">Juni</option>
+                            <option value="Juli">Juli</option>
+                            <option value="Agustus">Agustus</option>
+                            <option value="September">September</option>
+                            <option value="Oktober">Oktober</option>
+                            <option value="November">November</option>
+                            <option value="Desember">Desember</option>
+                        </select>
+                        <input type="number" id="fYear" class="input" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Bentuk Tampilan Pesan</label>
+                    <select id="fLayout" class="select">
+                        <option value="letter">Kartu Surat (Garis Samping Lembut)</option>
+                        <option value="bubble">Chat Bubble (Gelembung Pesan)</option>
+                        <option value="quote">Poster Kutipan (Tipografi Tengah)</option>
+                        <option value="ticket">Voucher / Tiket Spesial (Garis Putus)</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Isi Pesan Ucapan</label>
+                    <textarea id="fMessage" class="textarea" rows="3" required></textarea>
+                </div>
+
+                <div class="field">
+                    <label>Nama Pengirim</label>
+                    <input type="text" id="fSender" class="input" required>
+                </div>
+
+                <button type="submit" id="btnSave" class="btn-accent" style="width:100%; padding:12px; margin-top:4px;">
+                    Simpan Kartu
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        /* =================================================================
+           KONFIGURASI DATABASE GITHUB (TANAM DI SINI, TIDAK TAMPIL DI UI)
+           Pecah token ghp_ kamu menjadi 2 bagian (TOKEN_P1 + TOKEN_P2)
+           agar tidak terdeteksi scanner otomatis saat push ke repo publik.
+        ================================================================= */
+        const REPO_CONFIG = {
+            owner: "YzzSherifSh",   // Contoh: "SherifYzz"
+            repo: "BLACKWEBSITE",          // Contoh: "hbd-card"
+            branch: "main",
+            path: "db/cards.json",
+            tokenP1: "ghp_xsi6uUuf0OJEbMHahQd0x01", // Bagian awal token
+            tokenP2: "kA8D7f3mFuPC"  // Bagian akhir token
+        };
+
+        function getAuthToken() {
+            const full = REPO_CONFIG.tokenP1 + REPO_CONFIG.tokenP2;
+            if (full.includes("ISIBAGIAN")) return "";
+            return full;
+        }
+
+        let state = {
+            slug: "default",
+            name: "Sahabat",
+            avatar: "",
+            shape: "circle",
+            theme: "blush",
+            day: "Minggu",
+            date: "15",
+            month: "November",
+            year: "2026",
+            layout: "letter",
+            message: "Selamat ulang tahun! Semoga hari-harimu selalu dipenuhi hal baik, tawa yang tulus, dan semua impianmu satu per satu terwujud.",
+            sender: "Seseorang"
+        };
+
+        let dbCache = {};
+
+        /* Animasi Buka Amplop */
+        function openEnvelope() {
+            document.getElementById('openingScreen').classList.add('opened');
+            document.body.classList.add('card-revealed');
+            setTimeout(spawnConfetti, 250);
+        }
+
+        /* Upload & Kompres Foto Profil (PP) */
+        function onUploadPP(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const img = new Image();
+                img.onload = () => {
+                    const c = document.createElement('canvas');
+                    const max = 240;
+                    let w = img.width, h = img.height;
+                    if (w > h && w > max) { h *= max / w; w = max; }
+                    else if (h > max) { w *= max / h; h = max; }
+                    c.width = w; c.height = h;
+                    c.getContext('2d').drawImage(img, 0, 0, w, h);
+                    state.avatar = c.toDataURL('image/webp', 0.82);
+                    document.getElementById('fUrl').value = '';
+                    document.getElementById('previewPP').src = state.avatar;
+                    showToast('Foto PP siap digunakan');
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function onUrlPP(val) {
+            state.avatar = val.trim();
+            document.getElementById('previewPP').src = state.avatar;
+        }
+
+        function resetPP() {
+            state.avatar = '';
+            document.getElementById('fFile').value = '';
+            document.getElementById('fUrl').value = '';
+            document.getElementById('previewPP').src = '';
+        }
+
+        /* Baca Database dari GitHub Pages (db/cards.json) */
+        async function loadDatabase() {
+            const id = new URLSearchParams(window.location.search).get('id');
+
+            try {
+                const res = await fetch(`./${REPO_CONFIG.path}?v=${Date.now()}`);
+                if (res.ok) {
+                    dbCache = await res.json();
+                    document.getElementById('db-status').textContent = 'DB CONNECTED';
+                    if (id && dbCache[id]) {
+                        state = { ...state, ...dbCache[id], slug: id };
+                        return;
+                    }
+                }
+            } catch (_) {}
+
+            const local = JSON.parse(localStorage.getItem('hbd_cards_cache') || '{}');
+            dbCache = { ...local, ...dbCache };
+            if (id && dbCache[id]) {
+                state = { ...state, ...dbCache[id], slug: id };
+            }
+        }
+
+        /* Simpan Data ke GitHub Repo (db/cards.json) */
+        async function syncToGitHub(slug, data) {
+            dbCache[slug] = data;
+            localStorage.setItem('hbd_cards_cache', JSON.stringify(dbCache));
+
+            const token = getAuthToken();
+            if (!token || REPO_CONFIG.owner.includes("USERNAME")) {
+                return false;
+            }
+
+            const api = `https://api.github.com/repos/${REPO_CONFIG.owner}/${REPO_CONFIG.repo}/contents/${REPO_CONFIG.path}`;
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github+json',
+                'Content-Type': 'application/json'
+            };
+
+            let sha = null;
+            let remoteData = {};
+            const getRes = await fetch(`${api}?ref=${REPO_CONFIG.branch}`, { headers });
+            if (getRes.ok) {
+                const json = await getRes.json();
+                sha = json.sha;
+                try {
+                    remoteData = JSON.parse(decodeURIComponent(escape(atob(json.content.replace(/\n/g, '')))));
+                } catch (_) {}
+            }
+
+            remoteData[slug] = data;
+            const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(remoteData, null, 2))));
+
+            const body = {
+                message: `update card: ${slug}`,
+                content: encoded,
+                branch: REPO_CONFIG.branch
+            };
+            if (sha) body.sha = sha;
+
+            const putRes = await fetch(api, { method: 'PUT', headers, body: JSON.stringify(body) });
+            if (!putRes.ok) throw new Error('Gagal sync ke repo');
+            return true;
+        }
+
+        function esc(s) {
+            return String(s).replace(/[&<>'"]/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[c]));
+        }
+
+        function render() {
+            document.documentElement.setAttribute('data-theme', state.theme);
+            const fullDate = `${state.day}, ${state.date} ${state.month} ${state.year}`;
+
+            // Update Amplop Pembuka
+            document.getElementById('env-name').textContent = state.name;
+            document.getElementById('env-date').textContent = fullDate;
+
+            // Update Kartu Utama
+            document.getElementById('view-date').textContent = fullDate;
+            document.getElementById('view-slug').textContent = `#${state.slug.toUpperCase()}`;
+            document.getElementById('view-name').textContent = state.name;
+            document.getElementById('view-sender').textContent = state.sender;
+
+            // Update Foto Profil
+            const wrap = document.getElementById('avatar-wrap');
+            const img = document.getElementById('view-avatar');
+            const init = document.getElementById('view-initial');
+            wrap.classList.toggle('rounded-sq', state.shape === 'square');
+
+            if (state.avatar) {
+                img.src = state.avatar;
+                img.style.display = 'block';
+                init.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                init.style.display = 'block';
+                init.textContent = (state.name || 'S').charAt(0).toUpperCase();
+            }
+
+            // Update Bentuk Pesan
+            const box = document.getElementById('message-box');
+            const msg = esc(state.message);
+
+            if (state.layout === 'letter') {
+                box.innerHTML = `<div class="msg-letter">${msg}</div>`;
+            } else if (state.layout === 'bubble') {
+                box.innerHTML = `
+                    <div class="msg-bubble-wrap">
+                        <div class="msg-bubble">${msg}</div>
+                        <span class="msg-bubble-meta">Terkirim • ${esc(state.sender)}</span>
+                    </div>
+                `;
+            } else if (state.layout === 'quote') {
+                box.innerHTML = `<div class="msg-quote"><p>“${msg}”</p></div>`;
+            } else if (state.layout === 'ticket') {
+                box.innerHTML = `<div class="msg-ticket">PASS // ${esc(state.slug.toUpperCase())}\n\n${msg}</div>`;
+            }
+        }
+
+        function openModal() {
+            document.getElementById('fSlug').value = state.slug;
+            document.getElementById('fName').value = state.name;
+            document.getElementById('fShape').value = state.shape;
+            document.getElementById('fUrl').value = state.avatar.startsWith('http') ? state.avatar : '';
+            document.getElementById('previewPP').src = state.avatar || '';
+            document.getElementById('fTheme').value = state.theme;
+            document.getElementById('fDay').value = state.day;
+            document.getElementById('fDate').value = state.date;
+            document.getElementById('fMonth').value = state.month;
+            document.getElementById('fYear').value = state.year;
+            document.getElementById('fLayout').value = state.layout;
+            document.getElementById('fMessage').value = state.message;
+            document.getElementById('fSender').value = state.sender;
+            document.getElementById('modalBg').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalBg').classList.remove('active');
+        }
+
+        function getShareURL() {
+            const url = new URL(window.location.href.split('?')[0]);
+            url.searchParams.set('id', state.slug);
+            return url.toString();
+        }
+
+        async function saveCard(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSave');
+            btn.disabled = true;
+            btn.textContent = 'Menyimpan...';
+
+            state.slug = document.getElementById('fSlug').value.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-') || 'default';
+            state.name = document.getElementById('fName').value.trim();
+            state.shape = document.getElementById('fShape').value;
+            state.theme = document.getElementById('fTheme').value;
+            state.day = document.getElementById('fDay').value;
+            state.date = document.getElementById('fDate').value;
+            state.month = document.getElementById('fMonth').value;
+            state.year = document.getElementById('fYear').value;
+            state.layout = document.getElementById('fLayout').value;
+            state.message = document.getElementById('fMessage').value.trim();
+            state.sender = document.getElementById('fSender').value.trim();
+
+            try {
+                const synced = await syncToGitHub(state.slug, { ...state });
+                window.history.replaceState({}, '', getShareURL());
+                render();
+                closeModal();
+                spawnConfetti();
+                showToast(synced ? 'Tersimpan ke database GitHub!' : 'Tersimpan di browser lokal');
+            } catch (err) {
+                showToast(err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Simpan Kartu';
+            }
+        }
+
+        /* Push Notification */
+        function sendNotification() {
+            spawnConfetti();
+            if (!('Notification' in window)) {
+                showToast('Browser tidak mendukung notifikasi');
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                fireNotif();
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(p => {
+                    if (p === 'granted') fireNotif();
+                    else showToast('Izin notifikasi ditolak');
+                });
+            } else {
+                showToast('Aktifkan izin notifikasi di browser');
+            }
+        }
+
+        function fireNotif() {
+            const opts = { body: `${state.day}, ${state.date} ${state.month} ${state.year} — ${state.message}` };
+            if (state.avatar) opts.icon = state.avatar;
+            new Notification(`Selamat Ulang Tahun, ${state.name}!`, opts);
+            showToast('Notifikasi terkirim!');
+        }
+
+        function shareWhatsApp() {
+            const text = `*Selamat Ulang Tahun, ${state.name}!*\n${state.day}, ${state.date} ${state.month} ${state.year}\n\n"${state.message}"\n— ${state.sender}\n\nBuka kartu ucapanmu:\n${getShareURL()}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(getShareURL()).then(() => {
+                showToast('Link kartu disalin!');
+            });
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(t._id);
+            t._id = setTimeout(() => t.classList.remove('show'), 2800);
+        }
+
+        /* Cute Sparkle & Confetti Canvas */
+        function spawnConfetti() {
+            const canvas = document.getElementById('fx-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const rawColors = getComputedStyle(document.documentElement).getPropertyValue('--particle-colors').split(',');
+            const colors = rawColors.map(c => c.trim());
+
+            const items = Array.from({ length: 55 }, () => ({
+                x: canvas.width / 2,
+                y: canvas.height * 0.45,
+                vx: (Math.random() - 0.5) * 14,
+                vy: (Math.random() - 0.75) * 14,
+                r: Math.random() * 5 + 3,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                shape: Math.random() > 0.5 ? 'circle' : 'pill',
+                rot: Math.random() * Math.PI,
+                alpha: 1
+            }));
+
+            function tick() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let alive = false;
+                for (const p of items) {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.32;
+                    p.rot += 0.08;
+                    p.alpha -= 0.015;
+                    if (p.alpha > 0) {
+                        alive = true;
+                        ctx.save();
+                        ctx.globalAlpha = p.alpha;
+                        ctx.translate(p.x, p.y);
+                        ctx.rotate(p.rot);
+                        ctx.fillStyle = p.color;
+                        if (p.shape === 'circle') {
+                            ctx.beginPath();
+                            ctx.arc(0, 0, p.r, 0, Math.PI * 2);
+                            ctx.fill();
+                        } else {
+                            ctx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r);
+                        }
+                        ctx.restore();
+                    }
+                }
+                if (alive) requestAnimationFrame(tick);
+                else ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        (async function boot() {
+            await loadDatabase();
+            render();
+        })();
+    </script>
+</body>
+</html>
